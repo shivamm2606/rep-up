@@ -1,21 +1,7 @@
 import mongoose, { Document, Model, Schema } from "mongoose";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-
-interface IUser {
-  name: string;
-  email: string;
-  password: string;
-  refreshToken?: string | null;
-}
-
-interface IUserMethods {
-  isPasswordCorrect(enteredPassword: string): Promise<boolean>;
-  generateAccessToken(): string;
-  generateRefreshToken(): string;
-}
-
-type UserModel = Model<IUser, {}, IUserMethods>;
+import { IUser, IUserMethods, UserModel} from "../types/user.types.js";
 
 const userSchema = new Schema<IUser, UserModel, IUserMethods>(
   {
