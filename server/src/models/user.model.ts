@@ -26,10 +26,12 @@ const userSchema = new Schema<IUser, UserModel, IUserMethods>(
     password: {
       type: String,
       required: true,
+      select: false,
     },
     refreshToken: {
       type: String,
       default: null,
+      select: false,
     },
   },
   { timestamps: true },
