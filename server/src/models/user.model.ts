@@ -1,13 +1,19 @@
 import mongoose, { Document, Model, Schema } from "mongoose";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { IUser, IUserMethods, UserModel} from "../types/user.types.js";
+import { IUser, IUserMethods, UserModel } from "../types/user.types.js";
 
 const userSchema = new Schema<IUser, UserModel, IUserMethods>(
   {
     name: {
       type: String,
       required: true,
+      trim: true,
+    },
+    username: {
+      required: true,
+      unique: true,
+      lowercase: true,
       trim: true,
     },
     email: {
@@ -65,4 +71,3 @@ userSchema.methods.generateRefreshToken = function (): string {
 const User = mongoose.model<IUser, UserModel>("User", userSchema);
 
 export default User;
-export type { IUser, IUserMethods };

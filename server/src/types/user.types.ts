@@ -2,6 +2,7 @@ import { Model } from "mongoose";
 
 interface IUser {
   name: string;
+  username: string;
   email: string;
   password: string;
   refreshToken?: string | null;
