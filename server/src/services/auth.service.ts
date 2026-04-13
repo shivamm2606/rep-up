@@ -5,6 +5,7 @@ import {
   LoginDto,
   AuthUser,
   LoginResult,
+  RefreshTokenResult,
 } from "../types/auth.types.js";
 import { ApiError } from "../utils/apiError.js";
 
@@ -69,6 +70,41 @@ class MongoAuthService implements IAuthService {
     await User.findByIdAndUpdate(userId, {
       $unset: { refreshToken: 1 },
     });
+  };
+
+  refreshToken = async (
+    userId: string,
+    incomingRefreshToken: string,
+  ): Promise<RefreshTokenResult> => {
+    const user = await User.findById(userId).select("+refreshToken");
+
+    if (!user) {
+      throw new ApiError(401, "Invalid refresh token");
+    }
+
+    if (!incomingRefreshToken) {
+      throw new ApiError(401, "Refresh token missing");
+    }
+
+    if (incomingRefreshToken !== user.refreshToken) {
+      throw new ApiError(401, "Invalid refresh token");
+    }
+    const newAccessToken = await user.generateAccessToken();
+    const newRefreshToken = await user.generateRefreshToken();
+
+    user.refreshToken = newRefreshToken;
+    await user.save();
+
+    return {
+      user: {
+        _id: user._id.toString(),
+        name: user.name,
+        username: user.username,
+        email: user.email,
+      },
+      accessToken: newAccessToken,
+      refreshToken: newRefreshToken,
+    };
   };
 }
 

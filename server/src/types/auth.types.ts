@@ -15,7 +15,6 @@ export interface LoginDto {
   email: string;
   password: string;
 }
-
 export interface AuthUser {
   _id: string;
   username: string;
@@ -24,6 +23,11 @@ export interface AuthUser {
 }
 
 export interface LoginResult {
+  user: AuthUser;
+  accessToken: string;
+  refreshToken: string;
+}
+export interface RefreshTokenResult {
   user: AuthUser;
   accessToken: string;
   refreshToken: string;

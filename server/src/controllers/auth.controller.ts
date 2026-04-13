@@ -32,3 +32,14 @@ export const logoutUser = asyncHandler(async (req, res) => {
 
   res.status(200).json(new ApiResponse(200, {}, "User logged out"));
 });
+
+export const refreshToken = asyncHandler(async (req, res) => {
+  const result = await MongoAuthService.refreshToken(req.user._id.toString(), req.cookies.refreshToken);
+
+  res.cookie("accessToken", result.accessToken, cookieOptions);
+  res.cookie("refreshToken", result.refreshToken, cookieOptions);
+
+  res
+    .status(200)
+    .json(new ApiResponse(200, result.user, "Tokens refreshed Successfully"));
+});
