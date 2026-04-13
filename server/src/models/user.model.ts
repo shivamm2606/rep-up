@@ -30,7 +30,6 @@ const userSchema = new Schema<IUser, UserModel, IUserMethods>(
     },
     refreshToken: {
       type: String,
-      default: null,
       select: false,
     },
   },
