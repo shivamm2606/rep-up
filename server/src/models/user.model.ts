@@ -11,10 +11,11 @@ const userSchema = new Schema<IUser, UserModel, IUserMethods>(
       trim: true,
     },
     username: {
-      required: true,
+      type: String,
       unique: true,
       lowercase: true,
       trim: true,
+      required: true,
     },
     email: {
       type: String,
