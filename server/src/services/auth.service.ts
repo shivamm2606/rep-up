@@ -13,7 +13,7 @@ class MongoAuthService implements IAuthService {
   registerUser = async (dto: RegisterDto): Promise<RegisterResut> => {
     const { name, email, username, password } = dto;
 
-    const user = await User.findOne({ email, username });
+    const user = await User.findOne({ $or: [{ email }, { username }] });
 
     if (user) {
       throw new ApiError(400, "Email or username already in use.");
