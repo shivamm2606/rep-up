@@ -72,4 +72,5 @@ export {
   UpdateUserInfoDto,
   ChangePasswordDto,
   UpdateAccountDto,
+  ProfileResult,
 };
