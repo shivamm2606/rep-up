@@ -8,8 +8,8 @@ const cookieOptions = {
 };
 
 export const registerUser = asyncHandler(async (req, res) => {
-  console.log(req.body);
   const result = await MongoAuthService.registerUser(req.body);
+  
   res.status(201).json(new ApiResponse(201, result, "User registered Successfully"));
 });
 
