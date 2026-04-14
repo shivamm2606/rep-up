@@ -33,6 +33,28 @@ const userSchema = new Schema<IUser, UserModel, IUserMethods>(
       type: String,
       select: false,
     },
+    userInfo: {
+      height: { type: Number },
+      currentWeight: { type: Number },
+      targetWeight: { type: Number },
+      gender: { type: String, enum: ["male", "female", "other"] },
+      dateOfBirth: { type: Date },
+      activityLevel: {
+        type: String,
+        enum: [
+          "sedentary",
+          "lightly_active",
+          "moderately_active",
+          "very_active",
+        ],
+      },
+      goal: {
+        type: String,
+        enum: ["lose_weight", "maintain", "lean_bulk", "bulk"],
+      },
+      dailyCalorieGoal: { type: Number },
+      isCalorieGoalAutoCalculated: { type: Boolean, default: true },
+    },
   },
   { timestamps: true },
 );

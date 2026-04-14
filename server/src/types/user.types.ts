@@ -1,4 +1,50 @@
 import { Model } from "mongoose";
+import { Interface } from "node:readline";
+
+interface IUserService {
+  getProfile(userId: string): Promise<ProfileResult>;
+  updateUserInfo(
+    userId: string,
+    dto: UpdateUserInfoDto,
+  ): Promise<ProfileResult>;
+  updateAccount(userId: string, dto: UpdateAccountDto): Promise<ProfileResult>;
+  changePassword(userId: string, dto: ChangePasswordDto): Promise<void>;
+}
+
+interface ProfileResult {
+  _id: string;
+  name: string;
+  username: string;
+  email: string;
+  userInfo?: IUserInfo;
+}
+
+interface IUserInfo {
+  height?: number;
+  currentWeight?: number;
+  targetWeight?: number;
+  gender?: "male" | "female" | "other";
+  dateOfBirth?: Date;
+  activityLevel?:
+    | "sedentary"
+    | "lightly_active"
+    | "moderately_active"
+    | "very_active";
+  goal?: "lose_weight" | "maintain" | "lean_bulk" | "bulk";
+  dailyCalorieGoal?: number;
+  isCalorieGoalAutoCalculated?: boolean;
+}
+
+interface UpdateUserInfoDto extends IUserInfo {}
+interface ChangePasswordDto {
+  currentPassword: string;
+  newPassword: string;
+}
+interface UpdateAccountDto {
+  name?: string;
+  email?: string;
+  username?: string;
+}
 
 interface IUser {
   name: string;
@@ -6,6 +52,7 @@ interface IUser {
   email: string;
   password: string;
   refreshToken?: string | null;
+  userInfo?: IUserInfo;
 }
 
 interface IUserMethods {
@@ -16,4 +63,13 @@ interface IUserMethods {
 
 type UserModel = Model<IUser, {}, IUserMethods>;
 
-export { IUser, IUserMethods, UserModel };
+export {
+  IUser,
+  IUserMethods,
+  UserModel,
+  IUserInfo,
+  IUserService,
+  UpdateUserInfoDto,
+  ChangePasswordDto,
+  UpdateAccountDto,
+};
