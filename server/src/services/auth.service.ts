@@ -3,14 +3,14 @@ import {
   IAuthService,
   RegisterDto,
   LoginDto,
-  AuthUser,
+  RegisterResut,
   LoginResult,
   RefreshTokenResult,
 } from "../types/auth.types.js";
 import { ApiError } from "../utils/apiError.js";
 
 class MongoAuthService implements IAuthService {
-  registerUser = async (dto: RegisterDto): Promise<AuthUser> => {
+  registerUser = async (dto: RegisterDto): Promise<RegisterResut> => {
     const { name, email, username, password } = dto;
 
     const user = await User.findOne({ email, username });

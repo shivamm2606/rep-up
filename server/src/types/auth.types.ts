@@ -1,5 +1,5 @@
 export interface IAuthService {
-  registerUser(dto: RegisterDto): Promise<AuthUser>;
+  registerUser(dto: RegisterDto): Promise<RegisterResut>;
   loginUser(dto: LoginDto): Promise<LoginResult>;
   logoutUser(userId: string): Promise<void>;
 }
@@ -15,7 +15,7 @@ export interface LoginDto {
   email: string;
   password: string;
 }
-export interface AuthUser {
+export interface RegisterResut {
   _id: string;
   username: string;
   name: string;
@@ -23,12 +23,12 @@ export interface AuthUser {
 }
 
 export interface LoginResult {
-  user: AuthUser;
+  user: RegisterResut;
   accessToken: string;
   refreshToken: string;
 }
 export interface RefreshTokenResult {
-  user: AuthUser;
+  user: RegisterResut;
   accessToken: string;
   refreshToken: string;
 }
