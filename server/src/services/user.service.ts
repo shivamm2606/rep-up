@@ -7,6 +7,7 @@ import {
   ProfileResult,
 } from "../types/user.types.js";
 import { ApiError } from "../utils/apiError.js";
+import { computeCalorieGoal } from "../utils/calorie.helper.js";
 
 class UserService implements IUserService {
   getProfile = async (userId: string): Promise<ProfileResult> => {
@@ -25,35 +26,71 @@ class UserService implements IUserService {
     };
   };
 
-  updateUserInfo = async (
-    userId: string,
-    dto: UpdateUserInfoDto,
-  ): Promise<ProfileResult> => {
+  updateUserInfo = async (userId: string, dto: UpdateUserInfoDto) => {
+    const user = await User.findById(userId);
 
-    const updateFields: Record<string, unknown> = {};
-
-    for (const [key, value] of Object.entries(dto)) {
-      if (value !== undefined) {
-        updateFields[`userInfo.${key}`] = value;
-      }
-    }
-
-    const updatedUser = await User.findByIdAndUpdate(
-      userId,
-      { $set: updateFields },
-      { new: true },
-    );
-
-    if (!updatedUser) {
+    if (!user || !user.userInfo) {
       throw new ApiError(404, "User not found");
     }
 
+    // ✅ update fields safely
+    for (const [key, value] of Object.entries(dto)) {
+      if (value !== undefined) {
+        (user.userInfo as any)[key] = value;
+      }
+    }
+
+    const info = user.userInfo;
+
+    // ✅ respect manual mode
+    if (!info.isCalorieGoalAutoCalculated && info.dailyCalorieGoal) {
+      await user.save();
+      return {
+        _id: user._id.toString(),
+        name: user.name,
+        username: user.username,
+        email: user.email,
+        userInfo: user.userInfo,
+      };
+    }
+
+    const { height, currentWeight, gender, dateOfBirth, activityLevel, goal } =
+      info;
+
+    // ✅ calculate only if valid
+    if (
+      height &&
+      currentWeight &&
+      gender &&
+      dateOfBirth &&
+      activityLevel &&
+      goal
+    ) {
+      const age = Math.floor(
+        (Date.now() - dateOfBirth.getTime()) / (1000 * 60 * 60 * 24 * 365.25),
+      );
+
+      const calories = computeCalorieGoal({
+        height,
+        currentWeight,
+        gender,
+        age,
+        activityLevel,
+        goal,
+      });
+
+      info.dailyCalorieGoal = calories;
+      info.isCalorieGoalAutoCalculated = true;
+    }
+
+    await user.save();
+
     return {
-      _id: updatedUser._id.toString(),
-      name: updatedUser.name,
-      username: updatedUser.username,
-      email: updatedUser.email,
-      userInfo: updatedUser.userInfo,
+      _id: user._id.toString(),
+      name: user.name,
+      username: user.username,
+      email: user.email,
+      userInfo: user.userInfo,
     };
   };
 
@@ -123,6 +160,22 @@ class UserService implements IUserService {
     user.password = newPassword;
 
     await user.save({ validateBeforeSave: true });
+  };
+
+  getCalorieGoal = async (userId: string): Promise<number> => {
+    const user = await User.findById(userId);
+
+    if (!user || !user.userInfo) {
+      throw new ApiError(404, "User not found");
+    }
+
+    const calories = user.userInfo.dailyCalorieGoal;
+
+    if (!calories) {
+      throw new ApiError(400, "Calorie goal not set yet");
+    }
+
+    return calories;
   };
 }
 

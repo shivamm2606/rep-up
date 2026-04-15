@@ -11,10 +11,9 @@ export const getProfile = asyncHandler(async (req, res) => {
 });
 
 export const updateUserInfo = asyncHandler(async (req, res) => {
-  const result = await UserService.updateUserInfo(
-    req.user._id.toString(),
-    req.body,
-  );
+  const userId = req.user._id.toString();
+
+  const result = await UserService.updateUserInfo(userId, req.body);
 
   res
     .status(200)
@@ -22,10 +21,9 @@ export const updateUserInfo = asyncHandler(async (req, res) => {
 });
 
 export const updateAccount = asyncHandler(async (req, res) => {
-  const result = await UserService.updateAccount(
-    req.user._id.toString(),
-    req.body,
-  );
+  const userId = req.user._id.toString();
+
+  const result = await UserService.updateAccount(userId, req.body);
 
   res
     .status(200)
@@ -33,9 +31,21 @@ export const updateAccount = asyncHandler(async (req, res) => {
 });
 
 export const changePassword = asyncHandler(async (req, res) => {
-  await UserService.changePassword(req.user._id.toString(), req.body);
+  const userId = req.user._id.toString();
+
+  await UserService.changePassword(userId, req.body);
 
   res
     .status(200)
     .json(new ApiResponse(200, null, "Password changed successfully"));
+});
+
+export const getCalorieGoal = asyncHandler(async (req, res) => {
+  const userId = req.user._id.toString();
+
+  const calories = await UserService.getCalorieGoal(userId);
+
+  res.json(
+    new ApiResponse(200, { calories }, "Calorie goal fetched successfully"),
+  );
 });
