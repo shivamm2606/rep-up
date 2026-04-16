@@ -1,5 +1,4 @@
 import { Model } from "mongoose";
-import { Interface } from "node:readline";
 
 interface IUserService {
   getProfile(userId: string): Promise<ProfileResult>;

@@ -66,3 +66,14 @@ interface IWorkoutTemplate {
     notes?: string;
   }[];
 }
+
+export {
+  IStrengthSet,
+  ICardioSet,
+  IFlexibilitySet,
+  ISetLog,
+  IExerciseLog,
+  IWorkoutSession,
+  IExercise,
+  IWorkoutTemplate,
+};
