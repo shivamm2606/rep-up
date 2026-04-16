@@ -1,7 +1,7 @@
 import mongoose, { Schema } from "mongoose";
 import { IWorkoutTemplate } from "../types/workout.types.js";
 
-const workoutSchema = new Schema<IWorkoutTemplate>(
+const workoutTemplateSchema = new Schema<IWorkoutTemplate>(
   {
     name: {
       type: String,
@@ -29,7 +29,7 @@ const workoutSchema = new Schema<IWorkoutTemplate>(
 
 const WorkoutTemplate = mongoose.model<IWorkoutTemplate>(
   "WorkoutTemplate",
-  workoutSchema,
+  workoutTemplateSchema,
 );
 
 export default WorkoutTemplate;
