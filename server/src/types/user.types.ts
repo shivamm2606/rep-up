@@ -50,6 +50,7 @@ interface IUser {
   username: string;
   email: string;
   password: string;
+  role: "user" | "admin";
   refreshToken?: string | null;
   userInfo?: IUserInfo;
 }

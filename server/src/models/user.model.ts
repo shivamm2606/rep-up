@@ -29,6 +29,11 @@ const userSchema = new Schema<IUser, UserModel, IUserMethods>(
       required: true,
       select: false,
     },
+    role: {
+      type: String,
+      enum: ["user", "admin"],
+      default: "user",
+    },
     refreshToken: {
       type: String,
       select: false,

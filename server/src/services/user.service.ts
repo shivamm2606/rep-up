@@ -33,7 +33,6 @@ class UserService implements IUserService {
       throw new ApiError(404, "User not found");
     }
 
-    // ✅ update fields safely
     for (const [key, value] of Object.entries(dto)) {
       if (value !== undefined) {
         (user.userInfo as any)[key] = value;
@@ -42,7 +41,7 @@ class UserService implements IUserService {
 
     const info = user.userInfo;
 
-    // ✅ respect manual mode
+    // manual
     if (!info.isCalorieGoalAutoCalculated && info.dailyCalorieGoal) {
       await user.save();
       return {
@@ -57,7 +56,6 @@ class UserService implements IUserService {
     const { height, currentWeight, gender, dateOfBirth, activityLevel, goal } =
       info;
 
-    // ✅ calculate only if valid
     if (
       height &&
       currentWeight &&
