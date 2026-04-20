@@ -38,8 +38,8 @@ class MongoExerciseService implements IExerciseService {
   };
 
   updateExercise = async (
-    userId: string,
     exerciseId: string,
+    userId: string,
     dto: UpdateExerciseDto,
   ): Promise<IExercise | null> => {
     const user = await User.findById(userId);
@@ -147,5 +147,3 @@ class MongoExerciseService implements IExerciseService {
 
 export default new MongoExerciseService();
 
-// done two services now make other three and create controller for these
-// then routes
