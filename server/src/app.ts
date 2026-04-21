@@ -5,6 +5,7 @@ import cookieParser from "cookie-parser";
 import authRoutes from "./routes/auth.routes.js";
 import userRoutes from "./routes/user.routes.js";
 import exerciseRoutes from "./routes/exercise.routes.js";
+import workoutTemplateRoutes from "./routes/workoutTemplate.routes.js";
 
 dotenv.config();
 
@@ -18,5 +19,6 @@ app.use(cookieParser());
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/user", userRoutes);
 app.use("/api/v1/exercises", exerciseRoutes);
+app.use("/api/v1/workout-templates", workoutTemplateRoutes);
 
 export default app;
