@@ -59,12 +59,12 @@ export const getExerciseById = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, exercise, "Exercise fetched successfully"));
 });
 
-export const getAllExercise = asyncHandler(async (req, res) => {
+export const getAllExercises = asyncHandler(async (req, res) => {
   const userId = req.user._id.toString();
 
-  const Allexercise = await MongoExerciseService.getAllExercise(userId);
+  const allExercises = await MongoExerciseService.getAllExercises(userId);
 
   res.json(
-    new ApiResponse(200, Allexercise, "All Exercises fetched successfully"),
+    new ApiResponse(200, allExercises, "All Exercises fetched successfully"),
   );
 });

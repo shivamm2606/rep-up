@@ -131,7 +131,7 @@ class MongoExerciseService implements IExerciseService {
     throw new ApiError(403, "Unable to fetch the exercise");
   };
 
-  getAllExercise = async (userId: string): Promise<IExercise[]> => {
+  getAllExercises = async (userId: string): Promise<IExercise[]> => {
     const exercises = await Exercise.find({
       $or: [{ isCustom: false }, { isCustom: true, createdBy: userId }],
     });
