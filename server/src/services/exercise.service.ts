@@ -25,14 +25,9 @@ class MongoExerciseService implements IExerciseService {
       name,
       category,
       muscleGroup,
-      isCustom: false,
+      isCustom: user.role === "user" ? true : false,
+      createdBy: user.role === "user" ? user._id : undefined,
     });
-
-    if (user.role === "user") {
-      createdExercise.isCustom = true;
-      createdExercise.createdBy = user._id;
-      await createdExercise.save();
-    }
 
     return createdExercise;
   };
@@ -63,7 +58,7 @@ class MongoExerciseService implements IExerciseService {
     if (
       user.role === "user" &&
       exercise.isCustom === true &&
-      exercise.createdBy === user._id
+      exercise.createdBy?.equals(user._id)
     ) {
       Object.assign(exercise, dto);
       await exercise.save();
@@ -97,7 +92,7 @@ class MongoExerciseService implements IExerciseService {
     if (
       user.role === "user" &&
       exercise.isCustom === true &&
-      exercise.createdBy === user._id
+      exercise.createdBy?.equals(user._id)
     ) {
       await exercise.deleteOne();
       return;
@@ -128,12 +123,12 @@ class MongoExerciseService implements IExerciseService {
 
     if (
       user.role === "user" &&
-      (exercise.isCustom === false || exercise.createdBy === user._id)
+      (exercise.isCustom === false || exercise.createdBy?.equals(user._id))
     ) {
       return exercise;
     }
 
-    throw new ApiError(400, "Unable to fetch the exercise");
+    throw new ApiError(403, "Unable to fetch the exercise");
   };
 
   getAllExercise = async (userId: string): Promise<IExercise[]> => {
@@ -146,4 +141,3 @@ class MongoExerciseService implements IExerciseService {
 }
 
 export default new MongoExerciseService();
-
