@@ -1,4 +1,8 @@
-import { IExercise, IWorkoutTemplate } from "./workout.types.js";
+import {
+  IExercise,
+  IWorkoutTemplate,
+  IWorkoutSession,
+} from "./workout.types.js";
 
 export interface IExerciseService {
   createExercise(userId: string, dto: CreateExerciseDto): Promise<IExercise>;
@@ -58,3 +62,75 @@ export interface UpdateWorkoutTemplateDto {
     notes?: string;
   }[];
 }
+export interface IWorkoutSessionService {
+  createSession(
+    userId: string,
+    dto: CreateSessionDto,
+  ): Promise<IWorkoutSession>;
+
+  getSessionById(
+    sessionId: string,
+    userId: string,
+  ): Promise<IWorkoutSession | null>;
+
+  getUserSessions(
+    userId: string,
+    page: number,
+    limit: number,
+  ): Promise<{
+    sessions: IWorkoutSession[];
+    total: number;
+    page: number;
+    limit: number;
+  }>;
+
+  addExerciseToSession(
+    sessionId: string,
+    userId: string,
+    dto: AddExerciseToSessionDto,
+  ): Promise<IWorkoutSession>;
+
+  logSet(
+    sessionId: string,
+    userId: string,
+    dto: LogSetDto,
+  ): Promise<IWorkoutSession>;
+
+  completeSession(sessionId: string, userId: string): Promise<IWorkoutSession>;
+
+  deleteSession(sessionId: string, userId: string): Promise<void>;
+}
+
+export interface CreateSessionDto {
+  templateUsed?: string;
+  notes?: string;
+}
+
+export interface AddExerciseToSessionDto {
+  exerciseId: string;
+  notes?: string;
+}
+
+export type LogSetDto =
+  | {
+      exerciseId: string;
+      type: "strength";
+      reps: number;
+      weight: number;
+      unit?: "kg" | "lbs";
+      isWarmup?: boolean;
+      notes?: string;
+    }
+  | {
+      exerciseId: string;
+      type: "cardio";
+      duration: number;
+      distance?: number;
+      notes?: string;
+    }
+  | {
+      exerciseId: string;
+      type: "flexibility";
+      duration: number;
+      notes?: string;
+    };

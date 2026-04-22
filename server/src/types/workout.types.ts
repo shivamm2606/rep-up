@@ -32,6 +32,7 @@ interface IExerciseLog {
 interface IWorkoutSession {
   userId: Types.ObjectId;
   date: Date;
+  status: "active" | "completed";
   exercises: IExerciseLog[];
   duration?: number;
   notes?: string;
