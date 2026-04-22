@@ -7,4 +7,4 @@ declare global {
       user: IUser & IUserMethods & { _id: Types.ObjectId };
     }
   }
-}   
+}

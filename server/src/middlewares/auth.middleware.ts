@@ -20,9 +20,9 @@ export const verifyJWT = asyncHandler(async (req, res, next) => {
 
   if (!user) {
     throw new ApiError(401, "Invalid token");
-  } 
+  }
 
   req.user = user;
-  
+
   next();
 });
