@@ -21,6 +21,8 @@ const workoutSessionSchema = new Schema<IWorkoutSession>(
       required: true,
     },
 
+    name: { type: String },
+
     date: { type: Date, default: Date.now },
 
     exercises: [exerciseLogSchema],
