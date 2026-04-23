@@ -25,6 +25,12 @@ const workoutSessionSchema = new Schema<IWorkoutSession>(
 
     exercises: [exerciseLogSchema],
 
+    status: {
+      type: String,
+      enum: ["active", "completed"],
+      default: "active",
+    },
+
     duration: Number,
 
     notes: String,
