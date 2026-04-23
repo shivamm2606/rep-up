@@ -5,6 +5,8 @@ import {
   ISetLog,
 } from "./workout.types.js";
 
+import { Types } from "mongoose";
+
 export interface IExerciseService {
   createExercise(userId: string, dto: CreateExerciseDto): Promise<IExercise>;
   updateExercise(
@@ -103,13 +105,13 @@ export interface IWorkoutSessionService {
 }
 
 export interface CreateSessionDto {
+  name?: string;
   templateUsed?: string;
   notes?: string;
 }
 
 export interface AddExerciseToSessionDto {
-  exerciseId: string;
-  set: ISetLog[];
+  exerciseId: Types.ObjectId;
   notes?: string;
 }
 
@@ -119,8 +121,8 @@ export type LogSetDto =
       type: "strength";
       reps: number;
       weight: number;
-      unit?: "kg" | "lbs";
-      isWarmup?: boolean;
+      unit: "kg" | "lbs";
+      isWarmup: boolean;
       notes?: string;
     }
   | {
