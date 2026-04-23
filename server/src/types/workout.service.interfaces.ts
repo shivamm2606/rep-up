@@ -2,6 +2,7 @@ import {
   IExercise,
   IWorkoutTemplate,
   IWorkoutSession,
+  ISetLog,
 } from "./workout.types.js";
 
 export interface IExerciseService {
@@ -108,6 +109,7 @@ export interface CreateSessionDto {
 
 export interface AddExerciseToSessionDto {
   exerciseId: string;
+  set: ISetLog[];
   notes?: string;
 }
 
