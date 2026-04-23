@@ -117,7 +117,7 @@ export interface AddExerciseToSessionDto {
 
 export type LogSetDto =
   | {
-      exerciseId: string;
+      exerciseId: Types.ObjectId;
       type: "strength";
       reps: number;
       weight: number;
@@ -126,14 +126,14 @@ export type LogSetDto =
       notes?: string;
     }
   | {
-      exerciseId: string;
+      exerciseId: Types.ObjectId;
       type: "cardio";
       duration: number;
       distance?: number;
       notes?: string;
     }
   | {
-      exerciseId: string;
+      exerciseId: Types.ObjectId;
       type: "flexibility";
       duration: number;
       notes?: string;
