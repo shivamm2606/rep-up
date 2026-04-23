@@ -9,8 +9,10 @@ const cookieOptions = {
 
 export const registerUser = asyncHandler(async (req, res) => {
   const result = await MongoAuthService.registerUser(req.body);
-  
-  res.status(201).json(new ApiResponse(201, result, "User registered Successfully"));
+
+  res
+    .status(201)
+    .json(new ApiResponse(201, result, "User registered Successfully"));
 });
 
 export const loginUser = asyncHandler(async (req, res) => {
@@ -34,7 +36,10 @@ export const logoutUser = asyncHandler(async (req, res) => {
 });
 
 export const refreshToken = asyncHandler(async (req, res) => {
-  const result = await MongoAuthService.refreshToken(req.user._id.toString(), req.cookies.refreshToken);
+  const result = await MongoAuthService.refreshToken(
+    req.user._id.toString(),
+    req.cookies.refreshToken,
+  );
 
   res.cookie("accessToken", result.accessToken, cookieOptions);
   res.cookie("refreshToken", result.refreshToken, cookieOptions);
