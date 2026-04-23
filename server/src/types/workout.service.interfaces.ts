@@ -102,6 +102,19 @@ export interface IWorkoutSessionService {
   completeSession(sessionId: string, userId: string): Promise<IWorkoutSession>;
 
   deleteSession(sessionId: string, userId: string): Promise<void>;
+
+  removeExerciseFromSession(
+    sessionId: string,
+    userId: string,
+    exerciseId: string,
+  ): Promise<IWorkoutSession>;
+
+  removeSetFromSession(
+    sessionId: string,
+    userId: string,
+    exerciseId: string,
+    setIndex: number,
+  ): Promise<IWorkoutSession>;
 }
 
 export interface CreateSessionDto {

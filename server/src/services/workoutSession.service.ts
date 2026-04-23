@@ -166,6 +166,61 @@ class MongoWorkoutSessionService implements IWorkoutSessionService {
 
     return;
   };
+
+  removeExerciseFromSession = async (
+    sessionId: string,
+    userId: string,
+    exerciseId: string,
+  ): Promise<IWorkoutSession> => {
+    const session = await WorkoutSession.findById(sessionId);
+
+    if (!session) {
+      throw new ApiError(400, "Session not found");
+    }
+
+    if (!session.userId.equals(userId)) {
+      throw new ApiError(403, "Unauthorized");
+    }
+
+    session.exercises = session.exercises.filter(
+      (e) => !e.exerciseId.equals(exerciseId),
+    );
+
+    await session.save();
+
+    return session;
+  };
+
+  removeSetFromSession = async (
+    sessionId: string,
+    userId: string,
+    exerciseId: string,
+    setIndex: number,
+  ): Promise<IWorkoutSession> => {
+    const session = await WorkoutSession.findById(sessionId);
+
+    if (!session) {
+      throw new ApiError(400, "Session not found");
+    }
+
+    if (!session.userId.equals(userId)) {
+      throw new ApiError(403, "Unauthorized");
+    }
+
+    const exercise = session.exercises.find((e) =>
+      e.exerciseId.equals(exerciseId),
+    );
+
+    if (!exercise) {
+      throw new ApiError(400, "Exercise not found");
+    }
+
+    exercise.sets.splice(setIndex, 1);
+
+    await session.save();
+
+    return session;
+  };
 }
 
 export default new MongoWorkoutSessionService();
