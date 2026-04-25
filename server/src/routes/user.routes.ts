@@ -9,11 +9,13 @@ import {
 
 const router = Router();
 
-// protected
-router.route("/profile").get(verifyJWT, getProfile);
-router.route("/profile").patch(verifyJWT, updateUserInfo);
+//protected
+router.use(verifyJWT);
 
-router.route("/account").patch(verifyJWT, updateAccount);
-router.route("/change-password").patch(verifyJWT, changePassword);
+router.route("/profile").get(getProfile);
+router.route("/profile").patch(updateUserInfo);
+
+router.route("/account").patch(updateAccount);
+router.route("/change-password").patch(changePassword);
 
 export default router;

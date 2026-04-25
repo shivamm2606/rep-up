@@ -10,10 +10,13 @@ import {
 
 const router = Router();
 
-router.route("/").get(verifyJWT, getAllTemplates);
-router.route("/").post(verifyJWT, createTemplate);
-router.route("/:templateId").get(verifyJWT, getTemplateById);
-router.route("/:templateId").patch(verifyJWT, updateTemplate);
-router.route("/:templateId").delete(verifyJWT, deleteTemplate);
+//protected
+router.use(verifyJWT);
+
+router.route("/").get(getAllTemplates);
+router.route("/").post(createTemplate);
+router.route("/:templateId").get(getTemplateById);
+router.route("/:templateId").patch(updateTemplate);
+router.route("/:templateId").delete(deleteTemplate);
 
 export default router;

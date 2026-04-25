@@ -10,10 +10,13 @@ import {
 
 const router = Router();
 
-router.route("/").get(verifyJWT, getAllExercises);
-router.route("/").post(verifyJWT, createExercise);
-router.route("/:exerciseId").get(verifyJWT, getExerciseById);
-router.route("/:exerciseId").patch(verifyJWT, updateExercise);
-router.route("/:exerciseId").delete(verifyJWT, deleteExercise);
+//protected
+router.use(verifyJWT);
+
+router.route("/").get(getAllExercises);
+router.route("/").post(createExercise);
+router.route("/:exerciseId").get(getExerciseById);
+router.route("/:exerciseId").patch(updateExercise);
+router.route("/:exerciseId").delete(deleteExercise);
 
 export default router;
