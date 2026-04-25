@@ -62,7 +62,18 @@ export const getExerciseById = asyncHandler(async (req, res) => {
 export const getAllExercises = asyncHandler(async (req, res) => {
   const userId = req.user._id.toString();
 
-  const allExercises = await MongoExerciseService.getAllExercises(userId);
+  const filters = {
+    muscleGroup: req.query.muscleGroup as string,
+    category: req.query.category as string,
+    search: req.query.search as string,
+    page: Number(req.query.page) || 1,
+    limit: Number(req.query.limit) || 10,
+  };
+
+  const allExercises = await MongoExerciseService.getAllExercises(
+    userId,
+    filters,
+  );
 
   res.json(
     new ApiResponse(200, allExercises, "All Exercises fetched successfully"),

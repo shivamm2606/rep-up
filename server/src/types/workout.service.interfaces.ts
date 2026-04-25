@@ -16,7 +16,10 @@ export interface IExerciseService {
   ): Promise<IExercise | null>;
   deleteExercise(exerciseId: string, userId: string): Promise<void>;
   getExerciseById(exerciseId: string, userId: string): Promise<IExercise>;
-  getAllExercises(userId: string): Promise<IExercise[]>;
+  getAllExercises(
+    userId: string,
+    filters: GetExercisesDto,
+  ): Promise<PaginatedExercisesResponse>;
 }
 
 export interface CreateExerciseDto {
@@ -30,6 +33,22 @@ export interface UpdateExerciseDto {
   category?: string;
   muscleGroup?: string;
 }
+
+export interface GetExercisesDto {
+  muscleGroup?: string;
+  category?: string;
+  search?: string;
+  page?: number;
+  limit?: number;
+}
+
+export interface PaginatedExercisesResponse {
+  exercises: IExercise[];
+  total: number;
+  page: number;
+  totalPages: number;
+}
+
 export interface IWorkoutTemplateService {
   createTemplate(
     userId: string,

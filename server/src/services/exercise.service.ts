@@ -4,6 +4,8 @@ import {
   IExerciseService,
   CreateExerciseDto,
   UpdateExerciseDto,
+  GetExercisesDto,
+  PaginatedExercisesResponse,
 } from "../types/workout.service.interfaces.js";
 import { ApiError } from "../utils/apiError.js";
 import Exercise from "../models/exercise.model.js";
@@ -131,12 +133,33 @@ class MongoExerciseService implements IExerciseService {
     throw new ApiError(403, "Unable to fetch the exercise");
   };
 
-  getAllExercises = async (userId: string): Promise<IExercise[]> => {
-    const exercises = await Exercise.find({
-      $or: [{ isCustom: false }, { isCustom: true, createdBy: userId }],
-    });
+  getAllExercises = async (
+    userId: string,
+    filters: GetExercisesDto,
+  ): Promise<PaginatedExercisesResponse> => {
+    const { muscleGroup, category, search, page = 1, limit = 10 } = filters;
 
-    return exercises;
+    const query: any = {
+      $or: [{ isCustom: false }, { isCustom: true, createdBy: userId }],
+    };
+
+    if (muscleGroup) query.muscleGroup = muscleGroup;
+    if (category) query.category = category;
+    if (search) query.name = { $regex: search, $options: "i" };
+
+    const skip = (page - 1) * limit;
+
+    const [exercises, total] = await Promise.all([
+      Exercise.find(query).sort({ name: 1 }).skip(skip).limit(limit),
+      Exercise.countDocuments(query),
+    ]);
+
+    return {
+      exercises,
+      total,
+      page,
+      totalPages: Math.ceil(total / limit),
+    };
   };
 }
 
