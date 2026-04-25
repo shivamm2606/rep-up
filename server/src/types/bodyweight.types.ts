@@ -8,7 +8,7 @@ export interface IBodyweightLog {
   notes?: string;
 }
 
-export interface IbodyweightService {
+export interface IBodyweightService {
   logBodyweight(userId: string, dto: LogbodyweightDto): Promise<IBodyweightLog>;
   getBodyweightHistory(userId: string): Promise<IBodyweightLog[]>;
   deleteBodyweightEntry(userId: string, bodyweightId: string): Promise<void>;
