@@ -12,6 +12,6 @@ const router = Router();
 router.use(verifyJWT);
 
 router.route("/").get(getBodyweightHistory).post(logBodyweight);
-router.route("/:bodyweightId").post(deleteBodyweightEntry);
+router.route("/:bodyweightId").delete(deleteBodyweightEntry);
 
 export default router;

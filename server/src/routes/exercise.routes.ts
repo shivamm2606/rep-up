@@ -13,10 +13,11 @@ const router = Router();
 //protected
 router.use(verifyJWT);
 
-router.route("/").get(getAllExercises);
-router.route("/").post(createExercise);
-router.route("/:exerciseId").get(getExerciseById);
-router.route("/:exerciseId").patch(updateExercise);
-router.route("/:exerciseId").delete(deleteExercise);
+router.route("/").get(getAllExercises).post(createExercise);
+router
+  .route("/:exerciseId")
+  .get(getExerciseById)
+  .patch(updateExercise)
+  .delete(deleteExercise);
 
 export default router;

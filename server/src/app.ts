@@ -1,4 +1,4 @@
-import express from "express";
+import express, { Request, Response, NextFunction } from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
@@ -24,5 +24,17 @@ app.use("/api/v1/exercises", exerciseRoutes);
 app.use("/api/v1/workout-templates", workoutTemplateRoutes);
 app.use("/api/v1/workout-session", workoutSessionRoutes);
 app.use("/api/v1/bodyweight", bodyweightRoutes);
+
+const errorHandler = (
+  err: any,
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  const status = err.statusCode || 500;
+  res.status(status).json({ success: false, message: err.message });
+};
+
+app.use(errorHandler);
 
 export default app;
