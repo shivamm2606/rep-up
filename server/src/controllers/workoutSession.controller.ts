@@ -41,8 +41,8 @@ export const getSessionById = asyncHandler(async (req, res) => {
 });
 
 export const getAllSessions = asyncHandler(async (req, res) => {
-  const limit = parseInt(req.query.limit as string) || 10;
-  const page = parseInt(req.query.page as string) || 1;
+  const limit = Number(req.query.limit) || 10;
+  const page = Number(req.query.page) || 1;
   const userId = req.user._id.toString();
 
   const allSessions = await MongoWorkoutSessionService.getUserSessions(
@@ -119,7 +119,7 @@ export const removeExerciseFromSession = asyncHandler(async (req, res) => {
 export const removeSetFromSession = asyncHandler(async (req, res) => {
   const sessionId = req.params.sessionId as string;
   const exerciseId = req.params.exerciseId as string;
-  const setIndex = parseInt(req.params.setIndex as string);
+  const setIndex = Number(req.params.setIndex);
   const userId = req.user._id.toString();
 
   const session = await MongoWorkoutSessionService.removeSetFromSession(
