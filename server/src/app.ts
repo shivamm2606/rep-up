@@ -6,7 +6,8 @@ import authRoutes from "./routes/auth.routes.js";
 import userRoutes from "./routes/user.routes.js";
 import exerciseRoutes from "./routes/exercise.routes.js";
 import workoutTemplateRoutes from "./routes/workoutTemplate.routes.js";
-import WorkoutSessionRoutes from "./routes/workoutSession.routes.js";
+import workoutSessionRoutes from "./routes/workoutSession.routes.js";
+import bodyweightRoutes from "./routes/bodyweight.routes.js";
 
 dotenv.config();
 
@@ -21,6 +22,7 @@ app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/user", userRoutes);
 app.use("/api/v1/exercises", exerciseRoutes);
 app.use("/api/v1/workout-templates", workoutTemplateRoutes);
-app.use("/api/v1/workout-session", WorkoutSessionRoutes);
+app.use("/api/v1/workout-session", workoutSessionRoutes);
+app.use("/api/v1/bodyweight", bodyweightRoutes);
 
 export default app;
