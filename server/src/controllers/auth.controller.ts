@@ -4,8 +4,10 @@ import { ApiResponse } from "../utils/apiResponse.js";
 
 const cookieOptions = {
   httpOnly: true,
-  secure: true,
-};
+  secure: process.env.NODE_ENV === "production",
+  sameSite: "lax",
+  maxAge: 1000 * 60 * 60 * 24 * 7,
+} as const;
 
 export const registerUser = asyncHandler(async (req, res) => {
   const result = await MongoAuthService.registerUser(req.body);
