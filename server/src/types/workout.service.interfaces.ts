@@ -10,8 +10,8 @@ import { Types } from "mongoose";
 export interface IExerciseService {
   createExercise(userId: string, dto: CreateExerciseDto): Promise<IExercise>;
   updateExercise(
-    userId: string,
     exerciseId: string,
+    userId: string,
     dto: UpdateExerciseDto,
   ): Promise<IExercise | null>;
   deleteExercise(exerciseId: string, userId: string): Promise<void>;

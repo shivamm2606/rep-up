@@ -6,6 +6,7 @@ import {
 import { IWorkoutTemplate } from "../types/workout.types.js";
 import WorkoutTemplate from "../models/workoutTemplate.model.js";
 import { ApiError } from "../utils/apiError.js";
+import User from "../models/user.model.js";
 
 class MongoWorkoutTemplateService implements IWorkoutTemplateService {
   createTemplate = async (
@@ -79,9 +80,11 @@ class MongoWorkoutTemplateService implements IWorkoutTemplateService {
   };
 
   getAllTemplates = async (userId: string): Promise<IWorkoutTemplate[]> => {
-    const template = await WorkoutTemplate.find({ userId });
-
-    return template;
+    const adminUser = await User.findOne({ role: "admin" });
+    const templates = await WorkoutTemplate.find({
+      $or: [{ userId }, { userId: adminUser?._id }],
+    });
+    return templates;
   };
 }
 

@@ -24,7 +24,9 @@ router
   .route("/:sessionId/exercise/:exerciseId")
   .delete(removeExerciseFromSession);
 router.route("/:sessionId/set").post(logSet);
-router.route("/:sessionId/set/:setIndex").delete(removeSetFromSession);
+router
+  .route("/:sessionId/exercise/:exerciseId/set/:setIndex")
+  .delete(removeSetFromSession);
 router.route("/:sessionId/complete").patch(completeSession);
 
 export default router;
