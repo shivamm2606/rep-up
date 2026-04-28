@@ -39,7 +39,6 @@ export const logoutUser = asyncHandler(async (req, res) => {
 
 export const refreshToken = asyncHandler(async (req, res) => {
   const result = await MongoAuthService.refreshToken(
-    req.user._id.toString(),
     req.cookies.refreshToken,
   );
 

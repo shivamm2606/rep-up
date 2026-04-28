@@ -49,7 +49,7 @@ class MongoWorkoutSessionService implements IWorkoutSessionService {
       notes: dto.notes,
       sets: [],
     });
-
+    session.markModified("exercises");
     await session.save();
 
     return session;
@@ -81,7 +81,7 @@ class MongoWorkoutSessionService implements IWorkoutSessionService {
     const { exerciseId, ...setData } = dto;
 
     exercise.sets.push(setData);
-
+    session.markModified("exercises");
     await session.save();
 
     return session;
@@ -185,7 +185,7 @@ class MongoWorkoutSessionService implements IWorkoutSessionService {
     session.exercises = session.exercises.filter(
       (e) => !e.exerciseId.equals(exerciseId),
     );
-
+    session.markModified("exercises");
     await session.save();
 
     return session;
@@ -216,7 +216,7 @@ class MongoWorkoutSessionService implements IWorkoutSessionService {
     }
 
     exercise.sets.splice(setIndex, 1);
-
+    session.markModified("exercises");
     await session.save();
 
     return session;

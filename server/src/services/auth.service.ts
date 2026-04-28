@@ -8,6 +8,7 @@ import {
   RefreshTokenResult,
 } from "../types/auth.types.js";
 import { ApiError } from "../utils/apiError.js";
+import jwt from "jsonwebtoken";
 
 class MongoAuthService implements IAuthService {
   registerUser = async (dto: RegisterDto): Promise<RegisterResut> => {
@@ -73,24 +74,30 @@ class MongoAuthService implements IAuthService {
   };
 
   refreshToken = async (
-    userId: string,
     incomingRefreshToken: string,
   ): Promise<RefreshTokenResult> => {
-    const user = await User.findById(userId).select("+refreshToken");
-
-    if (!user) {
-      throw new ApiError(401, "Invalid refresh token");
-    }
-
     if (!incomingRefreshToken) {
       throw new ApiError(401, "Refresh token missing");
     }
 
-    if (incomingRefreshToken !== user.refreshToken) {
+    let decoded: { _id: string };
+    try {
+      decoded = jwt.verify(
+        incomingRefreshToken,
+        process.env.REFRESH_TOKEN_SECRET!,
+      ) as { _id: string };
+    } catch {
+      throw new ApiError(401, "Invalid or expired refresh token");
+    }
+
+    const user = await User.findById(decoded._id).select("+refreshToken");
+
+    if (!user || incomingRefreshToken !== user.refreshToken) {
       throw new ApiError(401, "Invalid refresh token");
     }
-    const newAccessToken = await user.generateAccessToken();
-    const newRefreshToken = await user.generateRefreshToken();
+
+    const newAccessToken = user.generateAccessToken();
+    const newRefreshToken = user.generateRefreshToken();
 
     user.refreshToken = newRefreshToken;
     await user.save();

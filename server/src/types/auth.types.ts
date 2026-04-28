@@ -2,6 +2,7 @@ export interface IAuthService {
   registerUser(dto: RegisterDto): Promise<RegisterResut>;
   loginUser(dto: LoginDto): Promise<LoginResult>;
   logoutUser(userId: string): Promise<void>;
+  refreshToken(incomingRefreshToken: string): Promise<RefreshTokenResult>;
 }
 
 export interface RegisterDto {
