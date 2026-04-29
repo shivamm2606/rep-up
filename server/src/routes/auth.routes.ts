@@ -11,15 +11,22 @@ import {
   forgotPassword,
   resetPassword,
 } from "../controllers/auth.controller.js";
+import {
+  otpRateLimiter,
+  forgotPasswordRateLimiter,
+} from "../middlewares/rateLimiter.js";
 
 const router = Router();
 
 router.route("/register").post(registerUser);
 router.route("/login").post(loginUser);
 router.route("/refresh-token").post(refreshToken);
-router.post("/verify-otp", verifyOtp);
-router.post("/resend-otp", resendOtp);
-router.post("/forgot-password", forgotPassword);
+
+//rate limited routes
+router.post("/verify-otp", otpRateLimiter, verifyOtp);
+router.post("/resend-otp", otpRateLimiter, resendOtp);
+router.post("/forgot-password", forgotPasswordRateLimiter, forgotPassword);
+
 router.post("/reset-password", resetPassword);
 
 //protected
