@@ -1,3 +1,7 @@
+import type { RegisterDto, LoginDto } from "../validator/auth.validator.js";
+
+export type { RegisterDto, LoginDto };
+
 export interface IAuthService {
   registerUser(dto: RegisterDto): Promise<RegisterResut>;
   loginUser(dto: LoginDto): Promise<LoginResult>;
@@ -9,17 +13,6 @@ export interface IAuthService {
   resetPassword(token: string, newPassword: string): Promise<void>;
 }
 
-export interface RegisterDto {
-  name: string;
-  email: string;
-  username: string;
-  password: string;
-}
-
-export interface LoginDto {
-  email: string;
-  password: string;
-}
 export interface RegisterResut {
   _id: string;
   username: string;

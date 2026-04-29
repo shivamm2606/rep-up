@@ -2,10 +2,35 @@ import {
   IExercise,
   IWorkoutTemplate,
   IWorkoutSession,
-  ISetLog,
 } from "./workout.types.js";
 
-import { Types } from "mongoose";
+import type {
+  CreateExerciseDto,
+  UpdateExerciseDto,
+  GetExercisesDto,
+} from "../validator/exercise.validator.js";
+
+import type {
+  CreateWorkoutTemplateDto,
+  UpdateWorkoutTemplateDto,
+} from "../validator/workoutTemplate.validator.js";
+
+import type {
+  CreateSessionDto,
+  AddExerciseToSessionDto,
+  LogSetDto,
+} from "../validator/workoutSession.validator.js";
+
+export type {
+  CreateExerciseDto,
+  UpdateExerciseDto,
+  GetExercisesDto,
+  CreateWorkoutTemplateDto,
+  UpdateWorkoutTemplateDto,
+  CreateSessionDto,
+  AddExerciseToSessionDto,
+  LogSetDto,
+};
 
 export interface IExerciseService {
   createExercise(userId: string, dto: CreateExerciseDto): Promise<IExercise>;
@@ -20,26 +45,6 @@ export interface IExerciseService {
     userId: string,
     filters: GetExercisesDto,
   ): Promise<PaginatedExercisesResponse>;
-}
-
-export interface CreateExerciseDto {
-  name: string;
-  category: string;
-  muscleGroup: string;
-}
-
-export interface UpdateExerciseDto {
-  name?: string;
-  category?: string;
-  muscleGroup?: string;
-}
-
-export interface GetExercisesDto {
-  muscleGroup?: string;
-  category?: string;
-  search?: string;
-  page?: number;
-  limit?: number;
 }
 
 export interface PaginatedExercisesResponse {
@@ -67,23 +72,6 @@ export interface IWorkoutTemplateService {
   getAllTemplates(userId: string): Promise<IWorkoutTemplate[]>;
 }
 
-export interface CreateWorkoutTemplateDto {
-  name: string;
-  exercises: {
-    exerciseId: string;
-    targetSets?: number;
-    notes?: string;
-  }[];
-}
-
-export interface UpdateWorkoutTemplateDto {
-  name?: string;
-  exercises?: {
-    exerciseId: string;
-    targetSets?: number;
-    notes?: string;
-  }[];
-}
 export interface IWorkoutSessionService {
   createSession(
     userId: string,
@@ -135,38 +123,3 @@ export interface IWorkoutSessionService {
     setIndex: number,
   ): Promise<IWorkoutSession>;
 }
-
-export interface CreateSessionDto {
-  name?: string;
-  templateUsed?: string;
-  notes?: string;
-}
-
-export interface AddExerciseToSessionDto {
-  exerciseId: Types.ObjectId;
-  notes?: string;
-}
-
-export type LogSetDto =
-  | {
-      exerciseId: Types.ObjectId;
-      type: "strength";
-      reps: number;
-      weight: number;
-      unit: "kg" | "lbs";
-      isWarmup: boolean;
-      notes?: string;
-    }
-  | {
-      exerciseId: Types.ObjectId;
-      type: "cardio";
-      duration: number;
-      distance?: number;
-      notes?: string;
-    }
-  | {
-      exerciseId: Types.ObjectId;
-      type: "flexibility";
-      duration: number;
-      notes?: string;
-    };

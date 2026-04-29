@@ -1,4 +1,9 @@
 import { Model } from "mongoose";
+import type {
+  UpdateUserInfoDto,
+  UpdateAccountDto,
+  ChangePasswordDto,
+} from "../validator/user.validator.js";
 
 interface IUserService {
   getProfile(userId: string): Promise<ProfileResult>;
@@ -32,17 +37,6 @@ interface IUserInfo {
   goal?: "lose_weight" | "maintain" | "lean_bulk" | "bulk";
   dailyCalorieGoal?: number;
   isCalorieGoalAutoCalculated?: boolean;
-}
-
-interface UpdateUserInfoDto extends IUserInfo {}
-interface ChangePasswordDto {
-  currentPassword: string;
-  newPassword: string;
-}
-interface UpdateAccountDto {
-  name?: string;
-  email?: string;
-  username?: string;
 }
 
 interface IUser {
