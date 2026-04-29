@@ -17,8 +17,13 @@ export const logBodyweight = asyncHandler(async (req, res) => {
 
 export const getBodyweightHistory = asyncHandler(async (req, res) => {
   const userId = req.user._id.toString();
+  const { page, limit } = req.query as unknown as { page: number; limit: number };
 
-  const history = await MongoBodyweightService.getBodyweightHistory(userId);
+  const history = await MongoBodyweightService.getBodyweightHistory(
+    userId,
+    page,
+    limit,
+  );
 
   res
     .status(200)

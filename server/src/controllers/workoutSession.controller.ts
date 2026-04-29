@@ -41,8 +41,7 @@ export const getSessionById = asyncHandler(async (req, res) => {
 });
 
 export const getAllSessions = asyncHandler(async (req, res) => {
-  const limit = Number(req.query.limit) || 10;
-  const page = Number(req.query.page) || 1;
+  const { page, limit } = req.query as unknown as { page: number; limit: number };
   const userId = req.user._id.toString();
 
   const allSessions = await MongoWorkoutSessionService.getUserSessions(
@@ -119,7 +118,7 @@ export const removeExerciseFromSession = asyncHandler(async (req, res) => {
 export const removeSetFromSession = asyncHandler(async (req, res) => {
   const sessionId = req.params.sessionId as string;
   const exerciseId = req.params.exerciseId as string;
-  const setIndex = Number(req.params.setIndex);
+  const setIndex = Number(req.params.setIndex); // Already validated as non-negative int by Zod
   const userId = req.user._id.toString();
 
   const session = await MongoWorkoutSessionService.removeSetFromSession(
