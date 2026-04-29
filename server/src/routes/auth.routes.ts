@@ -15,19 +15,43 @@ import {
   otpRateLimiter,
   forgotPasswordRateLimiter,
 } from "../middlewares/rateLimiter.js";
+import { validate } from "../middlewares/validate.js";
+import {
+  registerSchema,
+  loginSchema,
+  verifyOtpSchema,
+  resendOtpSchema,
+  forgotPasswordSchema,
+  resetPasswordSchema,
+} from "../validator/auth.validator.js";
 
 const router = Router();
 
-router.route("/register").post(registerUser);
-router.route("/login").post(loginUser);
+router.route("/register").post(validate(registerSchema), registerUser);
+router.route("/login").post(validate(loginSchema), loginUser);
 router.route("/refresh-token").post(refreshToken);
 
 //rate limited routes
-router.post("/verify-otp", otpRateLimiter, verifyOtp);
-router.post("/resend-otp", otpRateLimiter, resendOtp);
-router.post("/forgot-password", forgotPasswordRateLimiter, forgotPassword);
+router.post(
+  "/verify-otp",
+  otpRateLimiter,
+  validate(verifyOtpSchema),
+  verifyOtp,
+);
+router.post(
+  "/resend-otp",
+  otpRateLimiter,
+  validate(resendOtpSchema),
+  resendOtp,
+);
+router.post(
+  "/forgot-password",
+  forgotPasswordRateLimiter,
+  validate(forgotPasswordSchema),
+  forgotPassword,
+);
 
-router.post("/reset-password", resetPassword);
+router.post("/reset-password", validate(resetPasswordSchema), resetPassword);
 
 //protected
 router.use(verifyJWT);

@@ -7,6 +7,11 @@ import {
   getTemplateById,
   getAllTemplates,
 } from "../controllers/workoutTemplate.controller.js";
+import { validate } from "../middlewares/validate.js";
+import {
+  createTemplateSchema,
+  updateTemplateSchema,
+} from "../validator/workoutTemplate.validator.js";
 
 const router = Router();
 
@@ -14,9 +19,11 @@ const router = Router();
 router.use(verifyJWT);
 
 router.route("/").get(getAllTemplates);
-router.route("/").post(createTemplate);
+router.route("/").post(validate(createTemplateSchema), createTemplate);
 router.route("/:templateId").get(getTemplateById);
-router.route("/:templateId").patch(updateTemplate);
+router
+  .route("/:templateId")
+  .patch(validate(updateTemplateSchema), updateTemplate);
 router.route("/:templateId").delete(deleteTemplate);
 
 export default router;

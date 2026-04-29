@@ -6,6 +6,12 @@ import {
   updateAccount,
   updateUserInfo,
 } from "../controllers/user.controller.js";
+import { validate } from "../middlewares/validate.js";
+import {
+  updateUserInfoSchema,
+  updateAccountSchema,
+  changePasswordSchema,
+} from "../validator/user.validator.js";
 
 const router = Router();
 
@@ -13,9 +19,11 @@ const router = Router();
 router.use(verifyJWT);
 
 router.route("/profile").get(getProfile);
-router.route("/profile").patch(updateUserInfo);
+router.route("/profile").patch(validate(updateUserInfoSchema), updateUserInfo);
 
-router.route("/account").patch(updateAccount);
-router.route("/change-password").patch(changePassword);
+router.route("/account").patch(validate(updateAccountSchema), updateAccount);
+router
+  .route("/change-password")
+  .patch(validate(changePasswordSchema), changePassword);
 
 export default router;

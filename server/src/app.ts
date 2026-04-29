@@ -2,6 +2,7 @@ import express, { Request, Response, NextFunction } from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
+import { ZodError } from "zod";
 import authRoutes from "./routes/auth.routes.js";
 import userRoutes from "./routes/user.routes.js";
 import exerciseRoutes from "./routes/exercise.routes.js";
@@ -36,6 +37,18 @@ const errorHandler = (
   res: Response,
   next: NextFunction,
 ) => {
+  if (err instanceof ZodError) {
+    const errors = err.issues.map((issue) => ({
+      field: issue.path.join("."),
+      message: issue.message,
+    }));
+    return res.status(400).json({
+      success: false,
+      message: "Validation failed",
+      errors,
+    });
+  }
+
   const status = err.statusCode || 500;
   res.status(status).json({ success: false, message: err.message });
 };
