@@ -3,7 +3,7 @@ import { z } from "zod";
 // MongoDB ObjectId
 export const mongoIdSchema = z
   .string()
-  .regex(/^[a-fA-F0-9]{24}$/, "Invalid ID format");
+  .regex(/^[a-fA-F0-9]{24}$/, { error: "Invalid ID format" });
 
 export const paginationSchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
@@ -34,5 +34,5 @@ export const sessionExerciseParamSchema = z.object({
 export const sessionSetParamSchema = z.object({
   sessionId: mongoIdSchema,
   exerciseId: mongoIdSchema,
-  setIndex: z.coerce.number().int().min(0, "Set index must be non-negative"),
+  setIndex: z.coerce.number().int().min(0, { error: "Set index must be non-negative" }),
 });

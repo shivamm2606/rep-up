@@ -15,29 +15,29 @@ export const updateUserInfoSchema = z
     isCalorieGoalAutoCalculated: z.boolean().optional(),
   })
   .refine((data) => Object.keys(data).length > 0, {
-    message: "At least one field must be provided",
+    error: "At least one field must be provided",
   });
 
 export const updateAccountSchema = z
   .object({
     name: z.string().trim().min(2).max(50).optional(),
-    email: z.string().trim().toLowerCase().email().optional(),
+    email: z.email().trim().toLowerCase().optional(),
     username: z
       .string()
       .trim()
       .toLowerCase()
       .min(3)
       .max(30)
-      .regex(/^[a-z0-9_]+$/, "Invalid username format")
+      .regex(/^[a-z0-9_]+$/, { error: "Invalid username format" })
       .optional(),
   })
   .refine((data) => Object.keys(data).length > 0, {
-    message: "At least one field must be provided",
+    error: "At least one field must be provided",
   });
 
 export const changePasswordSchema = z.object({
-  currentPassword: z.string().min(1, "Current password is required"),
-  newPassword: z.string().min(8, "New password must be at least 8 characters"),
+  currentPassword: z.string().min(1, { error: "Current password is required" }),
+  newPassword: z.string().min(8, { error: "New password must be at least 8 characters" }),
 });
 
 export type UpdateUserInfoDto = z.infer<typeof updateUserInfoSchema>;

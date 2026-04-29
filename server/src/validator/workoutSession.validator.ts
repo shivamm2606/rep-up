@@ -15,7 +15,7 @@ export const addExerciseToSessionSchema = z.object({
 const strengthSetSchema = z.object({
   exerciseId: mongoIdSchema,
   type: z.literal("strength"),
-  reps: z.number().int().min(0),
+  reps: z.int().min(0),
   weight: z.number().min(0),
   unit: z.enum(["kg", "lbs"]),
   isWarmup: z.boolean(),

@@ -16,7 +16,7 @@ const muscleGroupEnum = z.enum([
 const categoryEnum = z.enum(["strength", "cardio", "flexibility"]);
 
 export const createExerciseSchema = z.object({
-  name: z.string().trim().min(1, "Name is required").max(100),
+  name: z.string().trim().min(1, { error: "Name is required" }).max(100),
   category: categoryEnum,
   muscleGroup: muscleGroupEnum,
 });
