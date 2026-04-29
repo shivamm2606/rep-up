@@ -24,10 +24,24 @@ class MongoBodyweightService implements IBodyweightService {
     return loggedWeight;
   };
 
-  getBodyweightHistory = async (userId: string): Promise<IBodyweightLog[]> => {
-    const bodyweights = await Bodyweight.find({ userId }).sort({ date: -1 });
+  getBodyweightHistory = async (
+    userId: string,
+    page: number,
+    limit: number,
+  ): Promise<{
+    entries: IBodyweightLog[];
+    total: number;
+    page: number;
+    limit: number;
+  }> => {
+    const skip = (page - 1) * limit;
 
-    return bodyweights;
+    const [entries, total] = await Promise.all([
+      Bodyweight.find({ userId }).sort({ date: -1 }).skip(skip).limit(limit),
+      Bodyweight.countDocuments({ userId }),
+    ]);
+
+    return { entries, total, page, limit };
   };
 
   deleteBodyweightEntry = async (

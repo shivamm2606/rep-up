@@ -13,6 +13,15 @@ export interface IBodyweightLog {
 
 export interface IBodyweightService {
   logBodyweight(userId: string, dto: LogBodyweightDto): Promise<IBodyweightLog>;
-  getBodyweightHistory(userId: string): Promise<IBodyweightLog[]>;
+  getBodyweightHistory(
+    userId: string,
+    page: number,
+    limit: number,
+  ): Promise<{
+    entries: IBodyweightLog[];
+    total: number;
+    page: number;
+    limit: number;
+  }>;
   deleteBodyweightEntry(userId: string, bodyweightId: string): Promise<void>;
 }
