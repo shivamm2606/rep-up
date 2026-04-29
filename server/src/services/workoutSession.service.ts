@@ -1,4 +1,5 @@
 import WorkoutSession from "../models/workoutSession.model.js";
+import WorkoutTemplate from "../models/workoutTemplate.model.js";
 import {
   IWorkoutSessionService,
   CreateSessionDto,
@@ -17,6 +18,23 @@ class MongoWorkoutSessionService implements IWorkoutSessionService {
     const name = dto.name ?? `Session - ${new Date().toLocaleDateString()}`;
     const { templateUsed, notes } = dto;
 
+    // Pre-fill exercises from template if provided
+    let exercises: {
+      exerciseId: Types.ObjectId;
+      notes?: string;
+      sets: never[];
+    }[] = [];
+    if (templateUsed) {
+      const template = await WorkoutTemplate.findById(templateUsed);
+      if (template) {
+        exercises = template.exercises.map((e) => ({
+          exerciseId: new Types.ObjectId(e.exerciseId),
+          notes: e.notes,
+          sets: [],
+        }));
+      }
+    }
+
     const createdSession = await WorkoutSession.create({
       userId,
       name,
@@ -24,7 +42,7 @@ class MongoWorkoutSessionService implements IWorkoutSessionService {
       notes,
       status: "active",
       date: Date.now(),
-      exercises: [],
+      exercises,
     });
 
     return createdSession;
@@ -43,6 +61,10 @@ class MongoWorkoutSessionService implements IWorkoutSessionService {
 
     if (!session.userId.equals(userId)) {
       throw new ApiError(403, "Unauthorized");
+    }
+
+    if (session.status === "completed") {
+      throw new ApiError(400, "Cannot modify a completed session");
     }
 
     session.exercises.push({
@@ -69,6 +91,10 @@ class MongoWorkoutSessionService implements IWorkoutSessionService {
 
     if (!session.userId.equals(userId)) {
       throw new ApiError(403, "Unauthorized");
+    }
+
+    if (session.status === "completed") {
+      throw new ApiError(400, "Cannot modify a completed session");
     }
 
     const exercise = session.exercises.find((e) =>
@@ -100,6 +126,10 @@ class MongoWorkoutSessionService implements IWorkoutSessionService {
 
     if (!session.userId.equals(userId)) {
       throw new ApiError(403, "Unauthorized");
+    }
+
+    if (session.status === "completed") {
+      throw new ApiError(400, "Session is already completed");
     }
 
     const duration = Math.round(
@@ -139,17 +169,19 @@ class MongoWorkoutSessionService implements IWorkoutSessionService {
     sessions: IWorkoutSession[];
     total: number;
     page: number;
-    limit: number;
+    totalPages: number;
   }> => {
     const skip = (page - 1) * limit;
 
-    const sessions = await WorkoutSession.find({ userId })
-      .skip(skip)
-      .limit(limit);
+    const [sessions, total] = await Promise.all([
+      WorkoutSession.find({ userId })
+        .sort({ date: -1 })
+        .skip(skip)
+        .limit(limit),
+      WorkoutSession.countDocuments({ userId }),
+    ]);
 
-    const total = await WorkoutSession.countDocuments({ userId });
-
-    return { sessions, total, page, limit };
+    return { sessions, total, page, totalPages: Math.ceil(total / limit) };
   };
 
   deleteSession = async (sessionId: string, userId: string): Promise<void> => {
@@ -183,6 +215,10 @@ class MongoWorkoutSessionService implements IWorkoutSessionService {
       throw new ApiError(403, "Unauthorized");
     }
 
+    if (session.status === "completed") {
+      throw new ApiError(400, "Cannot modify a completed session");
+    }
+
     session.exercises = session.exercises.filter(
       (e) => !e.exerciseId.equals(exerciseId),
     );
@@ -206,6 +242,10 @@ class MongoWorkoutSessionService implements IWorkoutSessionService {
 
     if (!session.userId.equals(userId)) {
       throw new ApiError(403, "Unauthorized");
+    }
+
+    if (session.status === "completed") {
+      throw new ApiError(400, "Cannot modify a completed session");
     }
 
     const exercise = session.exercises.find((e) =>

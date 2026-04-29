@@ -91,7 +91,7 @@ export interface IWorkoutSessionService {
     sessions: IWorkoutSession[];
     total: number;
     page: number;
-    limit: number;
+    totalPages: number;
   }>;
 
   addExerciseToSession(

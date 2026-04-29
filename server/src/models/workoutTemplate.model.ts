@@ -27,6 +27,8 @@ const workoutTemplateSchema = new Schema<IWorkoutTemplate>(
   { timestamps: true },
 );
 
+workoutTemplateSchema.index({ userId: 1 });
+
 const WorkoutTemplate = mongoose.model<IWorkoutTemplate>(
   "WorkoutTemplate",
   workoutTemplateSchema,

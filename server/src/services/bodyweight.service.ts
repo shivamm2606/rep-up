@@ -32,7 +32,7 @@ class MongoBodyweightService implements IBodyweightService {
     entries: IBodyweightLog[];
     total: number;
     page: number;
-    limit: number;
+    totalPages: number;
   }> => {
     const skip = (page - 1) * limit;
 
@@ -41,7 +41,7 @@ class MongoBodyweightService implements IBodyweightService {
       Bodyweight.countDocuments({ userId }),
     ]);
 
-    return { entries, total, page, limit };
+    return { entries, total, page, totalPages: Math.ceil(total / limit) };
   };
 
   deleteBodyweightEntry = async (

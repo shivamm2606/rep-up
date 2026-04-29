@@ -28,6 +28,8 @@ const bodyweightSchema = new Schema<IBodyweightLog>(
   { timestamps: true },
 );
 
+bodyweightSchema.index({ userId: 1, date: -1 });
+
 const Bodyweight = mongoose.model<IBodyweightLog>(
   "Bodyweight",
   bodyweightSchema,

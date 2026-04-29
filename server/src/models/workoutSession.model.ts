@@ -45,6 +45,8 @@ const workoutSessionSchema = new Schema<IWorkoutSession>(
   { timestamps: true },
 );
 
+workoutSessionSchema.index({ userId: 1, date: -1 });
+
 const WorkoutSession = mongoose.model<IWorkoutSession>(
   "WorkoutSession",
   workoutSessionSchema,

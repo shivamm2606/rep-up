@@ -39,6 +39,9 @@ const exerciseSchema = new Schema<IExercise>(
   },
   { timestamps: true },
 );
+
+exerciseSchema.index({ isCustom: 1, createdBy: 1 });
+
 const Exercise = mongoose.model<IExercise>("Exercise", exerciseSchema);
 
 export default Exercise;

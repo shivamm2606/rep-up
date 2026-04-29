@@ -91,6 +91,8 @@ userSchema.pre("save", async function () {
   this.password = await bcrypt.hash(this.password, 10);
 });
 
+userSchema.index({ resetPasswordToken: 1 }, { sparse: true });
+
 userSchema.methods.isPasswordCorrect = function (
   entered_password: string,
 ): Promise<boolean> {

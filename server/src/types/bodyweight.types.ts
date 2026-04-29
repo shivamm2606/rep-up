@@ -21,7 +21,7 @@ export interface IBodyweightService {
     entries: IBodyweightLog[];
     total: number;
     page: number;
-    limit: number;
+    totalPages: number;
   }>;
   deleteBodyweightEntry(userId: string, bodyweightId: string): Promise<void>;
 }
