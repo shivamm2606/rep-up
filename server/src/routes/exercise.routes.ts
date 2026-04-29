@@ -13,6 +13,7 @@ import {
   updateExerciseSchema,
   getExercisesQuerySchema,
 } from "../validator/exercise.validator.js";
+import { exerciseIdParamSchema } from "../validator/common.validator.js";
 
 const router = Router();
 
@@ -25,8 +26,12 @@ router
   .post(validate(createExerciseSchema), createExercise);
 router
   .route("/:exerciseId")
-  .get(getExerciseById)
-  .patch(validate(updateExerciseSchema), updateExercise)
-  .delete(deleteExercise);
+  .get(validate(exerciseIdParamSchema, "params"), getExerciseById)
+  .patch(
+    validate(exerciseIdParamSchema, "params"),
+    validate(updateExerciseSchema),
+    updateExercise,
+  )
+  .delete(validate(exerciseIdParamSchema, "params"), deleteExercise);
 
 export default router;

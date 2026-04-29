@@ -7,6 +7,10 @@ import {
 } from "../controllers/bodyweight.controller.js";
 import { validate } from "../middlewares/validate.js";
 import { logBodyweightSchema } from "../validator/bodyweight.validator.js";
+import {
+  bodyweightIdParamSchema,
+  paginationSchema,
+} from "../validator/common.validator.js";
 
 const router = Router();
 
@@ -15,8 +19,10 @@ router.use(verifyJWT);
 
 router
   .route("/")
-  .get(getBodyweightHistory)
+  .get(validate(paginationSchema, "query"), getBodyweightHistory)
   .post(validate(logBodyweightSchema), logBodyweight);
-router.route("/:bodyweightId").delete(deleteBodyweightEntry);
+router
+  .route("/:bodyweightId")
+  .delete(validate(bodyweightIdParamSchema, "params"), deleteBodyweightEntry);
 
 export default router;

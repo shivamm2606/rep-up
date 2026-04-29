@@ -5,6 +5,7 @@ import {
   getProfile,
   updateAccount,
   updateUserInfo,
+  getCalorieGoal,
 } from "../controllers/user.controller.js";
 import { validate } from "../middlewares/validate.js";
 import {
@@ -26,4 +27,7 @@ router
   .route("/change-password")
   .patch(validate(changePasswordSchema), changePassword);
 
+router.route("/calorie-goal").get(getCalorieGoal);
+
 export default router;
+

@@ -17,6 +17,12 @@ import {
   addExerciseToSessionSchema,
   logSetSchema,
 } from "../validator/workoutSession.validator.js";
+import {
+  sessionIdParamSchema,
+  sessionExerciseParamSchema,
+  sessionSetParamSchema,
+  paginationSchema,
+} from "../validator/common.validator.js";
 
 const router = Router();
 
@@ -25,19 +31,37 @@ router.use(verifyJWT);
 
 router
   .route("/")
-  .get(getAllSessions)
+  .get(validate(paginationSchema, "query"), getAllSessions)
   .post(validate(createSessionSchema), createSession);
-router.route("/:sessionId").get(getSessionById).delete(deleteSession);
+router
+  .route("/:sessionId")
+  .get(validate(sessionIdParamSchema, "params"), getSessionById)
+  .delete(validate(sessionIdParamSchema, "params"), deleteSession);
 router
   .route("/:sessionId/exercise")
-  .post(validate(addExerciseToSessionSchema), addExerciseToSession);
+  .post(
+    validate(sessionIdParamSchema, "params"),
+    validate(addExerciseToSessionSchema),
+    addExerciseToSession,
+  );
 router
   .route("/:sessionId/exercise/:exerciseId")
-  .delete(removeExerciseFromSession);
-router.route("/:sessionId/set").post(validate(logSetSchema), logSet);
+  .delete(
+    validate(sessionExerciseParamSchema, "params"),
+    removeExerciseFromSession,
+  );
+router
+  .route("/:sessionId/set")
+  .post(
+    validate(sessionIdParamSchema, "params"),
+    validate(logSetSchema),
+    logSet,
+  );
 router
   .route("/:sessionId/exercise/:exerciseId/set/:setIndex")
-  .delete(removeSetFromSession);
-router.route("/:sessionId/complete").patch(completeSession);
+  .delete(validate(sessionSetParamSchema, "params"), removeSetFromSession);
+router
+  .route("/:sessionId/complete")
+  .patch(validate(sessionIdParamSchema, "params"), completeSession);
 
 export default router;
