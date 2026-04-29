@@ -38,9 +38,7 @@ export const logoutUser = asyncHandler(async (req, res) => {
 });
 
 export const refreshToken = asyncHandler(async (req, res) => {
-  const result = await MongoAuthService.refreshToken(
-    req.cookies.refreshToken,
-  );
+  const result = await MongoAuthService.refreshToken(req.cookies.refreshToken);
 
   res.cookie("accessToken", result.accessToken, cookieOptions);
   res.cookie("refreshToken", result.refreshToken, cookieOptions);
@@ -48,4 +46,28 @@ export const refreshToken = asyncHandler(async (req, res) => {
   res
     .status(200)
     .json(new ApiResponse(200, result.user, "Tokens refreshed Successfully"));
+});
+
+export const verifyOtp = asyncHandler(async (req, res) => {
+  const { email, otp } = req.body;
+  await MongoAuthService.verifyOtp(email, otp);
+  res.status(200).json(new ApiResponse(200, {}, "Email verified successfully"));
+});
+
+export const resendOtp = asyncHandler(async (req, res) => {
+  const { email } = req.body;
+  await MongoAuthService.resendOtp(email);
+  res.status(200).json(new ApiResponse(200, {}, "OTP resent successfully"));
+});
+
+export const forgotPassword = asyncHandler(async (req, res) => {
+  const { email } = req.body;
+  await MongoAuthService.forgotPassword(email);
+  res.status(200).json(new ApiResponse(200, {}, "Password reset email sent"));
+});
+
+export const resetPassword = asyncHandler(async (req, res) => {
+  const { token, newPassword } = req.body;
+  await MongoAuthService.resetPassword(token, newPassword);
+  res.status(200).json(new ApiResponse(200, {}, "Password reset successfully"));
 });

@@ -9,7 +9,9 @@ import {
 } from "../types/auth.types.js";
 import { ApiError } from "../utils/apiError.js";
 import jwt from "jsonwebtoken";
-
+import { generateOTP, getOTPExpiry } from "../utils/otp.js";
+import { sendEmail } from "../utils/mailer.js";
+import crypto from "crypto";
 class MongoAuthService implements IAuthService {
   registerUser = async (dto: RegisterDto): Promise<RegisterResut> => {
     const { name, email, username, password } = dto;
@@ -20,11 +22,27 @@ class MongoAuthService implements IAuthService {
       throw new ApiError(400, "Email or username already in use.");
     }
 
-    const newUser = await User.create({ name, email, username, password });
+    const otp = generateOTP();
+    const otpExpiry = getOTPExpiry();
+
+    const newUser = await User.create({
+      name,
+      email,
+      username,
+      password,
+      otp,
+      otpExpiry,
+    });
 
     if (!newUser) {
       throw new ApiError(500, "User creation failed.");
     }
+
+    await sendEmail(
+      email,
+      "Verify your RepUp account",
+      `<p>Your OTP is <strong>${otp}</strong>. It expires in 10 minutes.</p>`,
+    );
 
     return {
       _id: newUser._id.toString(),
@@ -47,6 +65,10 @@ class MongoAuthService implements IAuthService {
 
     if (!isCorrect) {
       throw new ApiError(400, "Incorrect password");
+    }
+
+    if (!user.isVerified) {
+      throw new ApiError(403, "Please verify your email before logging in.");
     }
 
     const accessToken = await user.generateAccessToken();
@@ -112,6 +134,104 @@ class MongoAuthService implements IAuthService {
       accessToken: newAccessToken,
       refreshToken: newRefreshToken,
     };
+  };
+
+  verifyOtp = async (email: string, otp: string): Promise<void> => {
+    const user = await User.findOne({ email }).select("+otp +otpExpiry");
+
+    if (!user) {
+      throw new ApiError(404, "User not found.");
+    }
+
+    if (user.isVerified) {
+      throw new ApiError(400, "User already verified.");
+    }
+
+    if (!user.otp || !user.otpExpiry) {
+      throw new ApiError(400, "OTP not found. Please request a new one.");
+    }
+
+    if (user.otp !== otp) {
+      throw new ApiError(400, "Invalid OTP.");
+    }
+
+    if (user.otpExpiry < new Date()) {
+      throw new ApiError(400, "OTP expired. Please request a new one.");
+    }
+
+    user.isVerified = true;
+    user.otp = undefined;
+    user.otpExpiry = undefined;
+    await user.save();
+  };
+
+  resendOtp = async (email: string): Promise<void> => {
+    const user = await User.findOne({ email }).select("+otp +otpExpiry");
+
+    if (!user) {
+      throw new ApiError(404, "User not found.");
+    }
+
+    if (user.isVerified) {
+      throw new ApiError(400, "User already verified.");
+    }
+
+    const otp = generateOTP();
+    const otpExpiry = getOTPExpiry();
+
+    user.otp = otp;
+    user.otpExpiry = otpExpiry;
+    await user.save();
+
+    await sendEmail(
+      email,
+      "Your new RepUp OTP",
+      `<p>Your new OTP is <strong>${otp}</strong>. It expires in 10 minutes.</p>`,
+    );
+  };
+
+  forgotPassword = async (email: string): Promise<void> => {
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      throw new ApiError(404, "User not found.");
+    }
+
+    const token = crypto.randomBytes(32).toString("hex");
+    const expiry = new Date();
+    expiry.setMinutes(expiry.getMinutes() + 15);
+
+    user.resetPasswordToken = token;
+    user.resetPasswordExpiry = expiry;
+    await user.save();
+
+    const resetLink = `${process.env.CLIENT_URL}/reset-password?token=${token}`;
+
+    await sendEmail(
+      email,
+      "Reset your RepUp password",
+      `<p>Click the link below to reset your password. It expires in 15 minutes.</p>
+     <a href="${resetLink}">${resetLink}</a>`,
+    );
+  };
+
+  resetPassword = async (token: string, newPassword: string): Promise<void> => {
+    const user = await User.findOne({ resetPasswordToken: token }).select(
+      "+resetPasswordToken +resetPasswordExpiry",
+    );
+
+    if (!user) {
+      throw new ApiError(400, "Invalid or expired token.");
+    }
+
+    if (!user.resetPasswordExpiry || user.resetPasswordExpiry < new Date()) {
+      throw new ApiError(400, "Token expired. Please request a new one.");
+    }
+
+    user.password = newPassword;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpiry = undefined;
+    await user.save();
   };
 }
 

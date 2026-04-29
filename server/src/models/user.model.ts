@@ -38,6 +38,28 @@ const userSchema = new Schema<IUser, UserModel, IUserMethods>(
       type: String,
       select: false,
     },
+
+    otp: {
+      type: String,
+      select: false,
+    },
+    otpExpiry: {
+      type: Date,
+      select: false,
+    },
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
+    resetPasswordToken: {
+      type: String,
+      select: false,
+    },
+    resetPasswordExpiry: {
+      type: Date,
+      select: false,
+    },
+
     userInfo: {
       height: { type: Number },
       currentWeight: { type: Number },

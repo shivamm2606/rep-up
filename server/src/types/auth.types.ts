@@ -3,6 +3,10 @@ export interface IAuthService {
   loginUser(dto: LoginDto): Promise<LoginResult>;
   logoutUser(userId: string): Promise<void>;
   refreshToken(incomingRefreshToken: string): Promise<RefreshTokenResult>;
+  verifyOtp(email: string, otp: string): Promise<void>;
+  resendOtp(email: string): Promise<void>;
+  forgotPassword(email: string): Promise<void>;
+  resetPassword(token: string, newPassword: string): Promise<void>;
 }
 
 export interface RegisterDto {

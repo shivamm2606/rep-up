@@ -53,6 +53,11 @@ interface IUser {
   role: "user" | "admin";
   refreshToken?: string | null;
   userInfo?: IUserInfo;
+  otp?: string;
+  otpExpiry?: Date;
+  isVerified: boolean;
+  resetPasswordToken?: string;
+  resetPasswordExpiry?: Date;
 }
 
 interface IUserMethods {
