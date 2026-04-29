@@ -67,13 +67,13 @@ class MongoAuthService implements IAuthService {
     const user = await User.findOne({ email }).select("+password");
 
     if (!user) {
-      throw new ApiError(400, "User not found");
+      throw new ApiError(400, "Invalid email or password");
     }
 
     const isCorrect = await user.isPasswordCorrect(password);
 
     if (!isCorrect) {
-      throw new ApiError(400, "Incorrect password");
+      throw new ApiError(400, "Invalid email or password");
     }
 
     if (!user.isVerified) {
