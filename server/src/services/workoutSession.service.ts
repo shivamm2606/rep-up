@@ -7,6 +7,7 @@ import {
 } from "../types/workout.service.interfaces.js";
 import { IWorkoutSession } from "../types/workout.types.js";
 import { ApiError } from "../utils/apiError.js";
+import { Types } from "mongoose";
 
 class MongoWorkoutSessionService implements IWorkoutSessionService {
   createSession = async (
@@ -45,7 +46,7 @@ class MongoWorkoutSessionService implements IWorkoutSessionService {
     }
 
     session.exercises.push({
-      exerciseId: dto.exerciseId,
+      exerciseId: new Types.ObjectId(dto.exerciseId),
       notes: dto.notes,
       sets: [],
     });

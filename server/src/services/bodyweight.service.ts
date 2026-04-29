@@ -1,7 +1,7 @@
 import {
   IBodyweightLog,
   IBodyweightService,
-  LogbodyweightDto,
+  LogBodyweightDto,
 } from "../types/bodyweight.types.js";
 import { ApiError } from "../utils/apiError.js";
 import Bodyweight from "../models/bodyweight.model.js";
@@ -9,7 +9,7 @@ import Bodyweight from "../models/bodyweight.model.js";
 class MongoBodyweightService implements IBodyweightService {
   logBodyweight = async (
     userId: string,
-    dto: LogbodyweightDto,
+    dto: LogBodyweightDto,
   ): Promise<IBodyweightLog> => {
     const { weight, unit, date, notes } = dto;
 

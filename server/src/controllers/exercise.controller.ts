@@ -1,6 +1,7 @@
 import MongoExerciseService from "../services/exercise.service.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import { ApiResponse } from "../utils/apiResponse.js";
+import type { GetExercisesDto } from "../validator/exercise.validator.js";
 
 export const createExercise = asyncHandler(async (req, res) => {
   const userId = req.user._id.toString();
@@ -62,13 +63,7 @@ export const getExerciseById = asyncHandler(async (req, res) => {
 export const getAllExercises = asyncHandler(async (req, res) => {
   const userId = req.user._id.toString();
 
-  const filters = {
-    muscleGroup: req.query.muscleGroup as string,
-    category: req.query.category as string,
-    search: req.query.search as string,
-    page: Number(req.query.page) || 1,
-    limit: Number(req.query.limit) || 10,
-  };
+  const filters = req.query as unknown as GetExercisesDto;
 
   const allExercises = await MongoExerciseService.getAllExercises(
     userId,
