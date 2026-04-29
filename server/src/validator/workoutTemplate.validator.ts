@@ -14,10 +14,14 @@ export const createTemplateSchema = z.object({
     .min(1, "At least one exercise is required"),
 });
 
-export const updateTemplateSchema = z.object({
-  name: z.string().trim().min(1).max(100).optional(),
-  exercises: z.array(templateExerciseSchema).min(1).optional(),
-});
+export const updateTemplateSchema = z
+  .object({
+    name: z.string().trim().min(1).max(100).optional(),
+    exercises: z.array(templateExerciseSchema).min(1).optional(),
+  })
+  .refine((data) => Object.keys(data).length > 0, {
+    message: "At least one field must be provided",
+  });
 
 export type CreateWorkoutTemplateDto = z.infer<typeof createTemplateSchema>;
 export type UpdateWorkoutTemplateDto = z.infer<typeof updateTemplateSchema>;

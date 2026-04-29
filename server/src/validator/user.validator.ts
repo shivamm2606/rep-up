@@ -1,18 +1,22 @@
 import { z } from "zod";
 
-export const updateUserInfoSchema = z.object({
-  height: z.number().positive().optional(),
-  currentWeight: z.number().positive().optional(),
-  targetWeight: z.number().positive().optional(),
-  gender: z.enum(["male", "female", "other"]).optional(),
-  dateOfBirth: z.coerce.date().optional(),
-  activityLevel: z
-    .enum(["sedentary", "lightly_active", "moderately_active", "very_active"])
-    .optional(),
-  goal: z.enum(["lose_weight", "maintain", "lean_bulk", "bulk"]).optional(),
-  dailyCalorieGoal: z.number().positive().optional(),
-  isCalorieGoalAutoCalculated: z.boolean().optional(),
-});
+export const updateUserInfoSchema = z
+  .object({
+    height: z.number().positive().optional(),
+    currentWeight: z.number().positive().optional(),
+    targetWeight: z.number().positive().optional(),
+    gender: z.enum(["male", "female", "other"]).optional(),
+    dateOfBirth: z.coerce.date().optional(),
+    activityLevel: z
+      .enum(["sedentary", "lightly_active", "moderately_active", "very_active"])
+      .optional(),
+    goal: z.enum(["lose_weight", "maintain", "lean_bulk", "bulk"]).optional(),
+    dailyCalorieGoal: z.number().positive().optional(),
+    isCalorieGoalAutoCalculated: z.boolean().optional(),
+  })
+  .refine((data) => Object.keys(data).length > 0, {
+    message: "At least one field must be provided",
+  });
 
 export const updateAccountSchema = z
   .object({
