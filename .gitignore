@@ -45,6 +45,5 @@ coverage/
 
 # Tests
 __tests__/
-test-mail.ts
 
 seed.ts
