@@ -1,4 +1,5 @@
 import "dotenv/config";
+import mongoose from "mongoose";
 import ConnectDB from "./config/db.js";
 import app from "./app.js";
 
@@ -10,10 +11,19 @@ ConnectDB()
       console.log(`Server is running on port ${port}`);
     });
 
-    server.on("error", (error) => {
-      console.error("Server error:", error);
-    });
+    const shutdown = async () => {
+      console.log("\nShutting down...");
+      server.close(async () => {
+        await mongoose.connection.close();
+        console.log("Closed all connections");
+        process.exit(0);
+      });
+    };
+
+    process.on("SIGTERM", shutdown);
+    process.on("SIGINT", shutdown);
   })
-  .catch((error) => {
-    console.error("Failed to connect to the database:", error);
+  .catch((err) => {
+    console.error("Failed to start server:", err);
+    process.exit(1);
   });
