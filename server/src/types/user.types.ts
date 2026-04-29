@@ -13,6 +13,8 @@ interface IUserService {
   ): Promise<ProfileResult>;
   updateAccount(userId: string, dto: UpdateAccountDto): Promise<ProfileResult>;
   changePassword(userId: string, dto: ChangePasswordDto): Promise<void>;
+  getCalorieGoal(userId: string): Promise<number>;
+  deleteAccount(userId: string): Promise<void>;
 }
 
 interface ProfileResult {

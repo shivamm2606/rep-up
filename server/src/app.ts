@@ -2,7 +2,10 @@ import express, { Request, Response, NextFunction } from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
+import helmet from "helmet";
+import morgan from "morgan";
 import { ZodError } from "zod";
+import { globalRateLimiter } from "./middlewares/rateLimiter.js";
 import authRoutes from "./routes/auth.routes.js";
 import userRoutes from "./routes/user.routes.js";
 import exerciseRoutes from "./routes/exercise.routes.js";
@@ -14,16 +17,25 @@ dotenv.config();
 
 const app = express();
 
+app.use(helmet());
+app.use(morgan("dev"));
+app.use(globalRateLimiter);
 app.use(
   cors({
     origin: process.env.CLIENT_URL,
     credentials: true,
   }),
 );
-app.use(express.json());
+app.use(express.json({ limit: "10kb" }));
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
+// Health check
+app.get("/api/v1/health", (req: Request, res: Response) => {
+  res.json({ status: "ok", timestamp: new Date().toISOString() });
+});
+
+// Routes
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/user", userRoutes);
 app.use("/api/v1/exercises", exerciseRoutes);
@@ -31,6 +43,12 @@ app.use("/api/v1/workout-templates", workoutTemplateRoutes);
 app.use("/api/v1/workout-session", workoutSessionRoutes);
 app.use("/api/v1/bodyweight", bodyweightRoutes);
 
+// catch-all
+app.use((req: Request, res: Response) => {
+  res.status(404).json({ success: false, message: "Route not found" });
+});
+
+// Global error handler
 const errorHandler = (
   err: any,
   req: Request,
@@ -50,7 +68,12 @@ const errorHandler = (
   }
 
   const status = err.statusCode || 500;
-  res.status(status).json({ success: false, message: err.message });
+  const message =
+    status === 500 && process.env.NODE_ENV === "production"
+      ? "Internal server error"
+      : err.message;
+
+  res.status(status).json({ success: false, message });
 };
 
 app.use(errorHandler);

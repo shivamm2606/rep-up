@@ -43,4 +43,8 @@ Thumbs.db
 # Coverage 
 coverage/
 
+# Tests
+__tests__/
+test-mail.ts
+
 seed.ts

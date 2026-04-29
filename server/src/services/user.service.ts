@@ -1,4 +1,8 @@
 import User from "../models/user.model.js";
+import WorkoutSession from "../models/workoutSession.model.js";
+import WorkoutTemplate from "../models/workoutTemplate.model.js";
+import Exercise from "../models/exercise.model.js";
+import Bodyweight from "../models/bodyweight.model.js";
 import {
   IUserService,
   UpdateUserInfoDto,
@@ -8,6 +12,8 @@ import {
 } from "../types/user.types.js";
 import { ApiError } from "../utils/apiError.js";
 import { computeCalorieGoal } from "../utils/calorie.helper.js";
+import { generateOTP, getOTPExpiry } from "../utils/otp.js";
+import { sendEmail } from "../utils/mailer.js";
 
 class UserService implements IUserService {
   getProfile = async (userId: string): Promise<ProfileResult> => {
@@ -104,36 +110,56 @@ class UserService implements IUserService {
 
     const { name, email, username } = dto;
 
-    const existingUser = await User.findOne({
-      $or: [{ email }, { username }],
-    });
+    // Check for uniqueness conflicts
+    const conflictFilters: any[] = [];
+    if (email) conflictFilters.push({ email });
+    if (username) conflictFilters.push({ username });
 
-    if (existingUser && existingUser._id.toString() !== userId) {
-      throw new ApiError(400, "Email or username already in use");
+    if (conflictFilters.length > 0) {
+      const existingUser = await User.findOne({ $or: conflictFilters });
+      if (existingUser && existingUser._id.toString() !== userId) {
+        throw new ApiError(400, "Email or username already in use");
+      }
     }
 
-    const updateFields: Partial<UpdateAccountDto> = {};
+    if (name !== undefined) user.name = name;
+    if (username !== undefined) user.username = username;
 
-    if (name !== undefined) updateFields.name = name;
-    if (email !== undefined) updateFields.email = email;
-    if (username !== undefined) updateFields.username = username;
+    if (email !== undefined && email !== user.email) {
+      user.email = email;
+      user.isVerified = false;
 
-    const updatedUser = (await User.findByIdAndUpdate(
-      userId,
-      { $set: updateFields },
-      { new: true, runValidators: true },
-    )) as InstanceType<typeof User> | null;
+      const otp = generateOTP();
+      const otpExpiry = getOTPExpiry();
+      user.otp = otp;
+      user.otpExpiry = otpExpiry;
 
-    if (!updatedUser) {
-      throw new ApiError(500, "Update failed");
+      await user.save();
+
+      await sendEmail(
+        email,
+        "Verify your new email — RepUp",
+        `<div style="font-family: Arial, sans-serif; max-width: 480px; margin: auto; padding: 32px; border: 1px solid #e0e0e0; border-radius: 8px;">
+  <h2 style="color: #111;">Verify your new email</h2>
+  <p style="color: #444;">You changed your email address. Use the OTP below to verify it.</p>
+  <div style="font-size: 32px; font-weight: bold; letter-spacing: 8px; color: #111; background: #f5f5f5; padding: 16px; text-align: center; border-radius: 6px; margin: 24px 0;">
+    ${otp}
+  </div>
+  <p style="color: #888; font-size: 13px;">This OTP expires in <strong>10 minutes</strong>. Do not share it with anyone.</p>
+  <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 24px 0;">
+  <p style="color: #aaa; font-size: 12px;">If you didn't make this change, please secure your account immediately.</p>
+</div>`,
+      );
+    } else {
+      await user.save();
     }
 
     return {
-      _id: updatedUser._id.toString(),
-      name: updatedUser.name,
-      username: updatedUser.username,
-      email: updatedUser.email,
-      userInfo: updatedUser.userInfo,
+      _id: user._id.toString(),
+      name: user.name,
+      username: user.username,
+      email: user.email,
+      userInfo: user.userInfo,
     };
   };
 
@@ -174,6 +200,24 @@ class UserService implements IUserService {
     }
 
     return calories;
+  };
+
+  deleteAccount = async (userId: string): Promise<void> => {
+    const user = await User.findById(userId);
+
+    if (!user) {
+      throw new ApiError(404, "User not found");
+    }
+
+    // Cascade delete all user data
+    await Promise.all([
+      WorkoutSession.deleteMany({ userId }),
+      WorkoutTemplate.deleteMany({ userId }),
+      Exercise.deleteMany({ createdBy: userId, isCustom: true }),
+      Bodyweight.deleteMany({ userId }),
+    ]);
+
+    await user.deleteOne();
   };
 }
 

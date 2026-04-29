@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { strongPasswordSchema } from "./auth.validator.js";
 
 export const updateUserInfoSchema = z
   .object({
@@ -37,7 +38,7 @@ export const updateAccountSchema = z
 
 export const changePasswordSchema = z.object({
   currentPassword: z.string().min(1, { error: "Current password is required" }),
-  newPassword: z.string().min(8, { error: "New password must be at least 8 characters" }),
+  newPassword: strongPasswordSchema,
 });
 
 export type UpdateUserInfoDto = z.infer<typeof updateUserInfoSchema>;

@@ -49,3 +49,16 @@ export const getCalorieGoal = asyncHandler(async (req, res) => {
     new ApiResponse(200, { calories }, "Calorie goal fetched successfully"),
   );
 });
+
+export const deleteAccount = asyncHandler(async (req, res) => {
+  const userId = req.user._id.toString();
+
+  await UserService.deleteAccount(userId);
+
+  res.clearCookie("accessToken");
+  res.clearCookie("refreshToken");
+
+  res
+    .status(200)
+    .json(new ApiResponse(200, {}, "Account deleted successfully"));
+});

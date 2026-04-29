@@ -14,6 +14,7 @@ import {
 import {
   otpRateLimiter,
   forgotPasswordRateLimiter,
+  loginRateLimiter,
 } from "../middlewares/rateLimiter.js";
 import { validate } from "../middlewares/validate.js";
 import {
@@ -28,7 +29,7 @@ import {
 const router = Router();
 
 router.route("/register").post(validate(registerSchema), registerUser);
-router.route("/login").post(validate(loginSchema), loginUser);
+router.route("/login").post(loginRateLimiter, validate(loginSchema), loginUser);
 router.route("/refresh-token").post(refreshToken);
 
 //rate limited routes
