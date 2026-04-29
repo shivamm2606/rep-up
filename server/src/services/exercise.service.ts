@@ -18,7 +18,7 @@ class MongoExerciseService implements IExerciseService {
     const user = await User.findById(userId);
 
     if (!user) {
-      throw new ApiError(400, "User not found");
+      throw new ApiError(404, "User not found");
     }
 
     const { name, category, muscleGroup } = dto;
@@ -42,7 +42,7 @@ class MongoExerciseService implements IExerciseService {
     const user = await User.findById(userId);
 
     if (!user) {
-      throw new ApiError(400, "User not found");
+      throw new ApiError(404, "User not found");
     }
 
     const exercise = await Exercise.findById(exerciseId);
@@ -77,7 +77,7 @@ class MongoExerciseService implements IExerciseService {
     const user = await User.findById(userId);
 
     if (!user) {
-      throw new ApiError(400, "User not found");
+      throw new ApiError(404, "User not found");
     }
 
     const exercise = await Exercise.findById(exerciseId);
@@ -110,7 +110,7 @@ class MongoExerciseService implements IExerciseService {
     const user = await User.findById(userId);
 
     if (!user) {
-      throw new ApiError(400, "User not found");
+      throw new ApiError(404, "User not found");
     }
 
     const exercise = await Exercise.findById(exerciseId);

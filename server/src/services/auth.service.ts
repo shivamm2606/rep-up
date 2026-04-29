@@ -77,7 +77,7 @@ class MongoAuthService implements IAuthService {
     }
 
     if (!user.isVerified) {
-      throw new ApiError(403, "Please verify your email before logging in.");
+      throw new ApiError(403, "Email not verified");
     }
 
     const accessToken = await user.generateAccessToken();
