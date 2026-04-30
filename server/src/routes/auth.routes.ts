@@ -52,7 +52,12 @@ router.post(
   forgotPassword,
 );
 
-router.post("/reset-password", forgotPasswordRateLimiter, validate(resetPasswordSchema), resetPassword);
+router.post(
+  "/reset-password",
+  forgotPasswordRateLimiter,
+  validate(resetPasswordSchema),
+  resetPassword,
+);
 
 //protected
 router.use(verifyJWT);
