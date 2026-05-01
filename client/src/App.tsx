@@ -6,7 +6,7 @@ import { useEffect } from "react";
 import api from "./lib/axios";
 import useAuthStore from "./store/authStore";
 import Register from "./pages/Register";
-import VerifyEmail from "./pages/VerifyEmail";
+import VerifyOtp from "./pages/VerifyOtp";
 
 function RootRedirect() {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
@@ -22,7 +22,7 @@ function App() {
 
   useEffect(() => {
     api
-      .get("/api/v1/user/profile")
+      .get("/user/profile")
       .then((response) => {
         const user = response.data.data;
         setAuth(user);
@@ -39,7 +39,7 @@ function App() {
     <Routes>
       <Route path="/" element={<RootRedirect />} />
       <Route path="/login" element={<Login />} />
-      <Route path="/verify-email" element={<VerifyEmail />} />
+      <Route path="/verify-otp" element={<VerifyOtp />} />
       <Route path="/register" element={<Register />} />
       <Route
         path="/dashboard"
