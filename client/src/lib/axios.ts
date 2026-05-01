@@ -2,7 +2,7 @@ import axios from "axios";
 import useAuthStore from "../store/authStore";
 
 const api = axios.create({
-  baseURL: "http://localhost:5000",
+  baseURL: "http://localhost:5000/api/v1",
   withCredentials: true,
 });
 
@@ -41,7 +41,7 @@ api.interceptors.response.use(
     isRefreshing = true;
 
     try {
-      await api.post("/api/v1/auth/refresh-token");
+      await api.post("/auth/refresh-token");
       processQueue(null);
       return api(originalRequest);
     } catch (refreshError) {
