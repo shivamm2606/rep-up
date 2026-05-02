@@ -45,3 +45,23 @@ export interface PaginatedSessions {
   page: number;
   totalPages: number;
 }
+
+export interface CreateSessionPayload {
+  name?: string;
+  templateUsed?: string;
+  notes?: string;
+}
+
+export interface AddExercisePayload {
+  exerciseId: string;
+  notes?: string;
+}
+
+export interface LogSetPayload {
+  exerciseId: string;
+  notes?: string;
+}
+
+export type StrengthSetPayload = IStrengthSet & LogSetPayload;
+export type CardioSetPayload = ICardioSet & LogSetPayload;
+export type FlexibilitySetPayload = IFlexibilitySet & LogSetPayload;
