@@ -34,5 +34,8 @@ export const sessionExerciseParamSchema = z.object({
 export const sessionSetParamSchema = z.object({
   sessionId: mongoIdSchema,
   exerciseId: mongoIdSchema,
-  setIndex: z.coerce.number().int().min(0, { error: "Set index must be non-negative" }),
+  setIndex: z.coerce
+    .number()
+    .int()
+    .min(0, { error: "Set index must be non-negative" }),
 });

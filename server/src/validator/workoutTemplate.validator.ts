@@ -8,7 +8,11 @@ const templateExerciseSchema = z.object({
 });
 
 export const createTemplateSchema = z.object({
-  name: z.string().trim().min(1, { error: "Template name is required" }).max(100),
+  name: z
+    .string()
+    .trim()
+    .min(1, { error: "Template name is required" })
+    .max(100),
   exercises: z
     .array(templateExerciseSchema)
     .min(1, { error: "At least one exercise is required" }),

@@ -41,7 +41,10 @@ export const getSessionById = asyncHandler(async (req, res) => {
 });
 
 export const getAllSessions = asyncHandler(async (req, res) => {
-  const { page, limit } = req.query as unknown as { page: number; limit: number };
+  const { page, limit } = req.query as unknown as {
+    page: number;
+    limit: number;
+  };
   const userId = req.user._id.toString();
 
   const allSessions = await MongoWorkoutSessionService.getUserSessions(
