@@ -12,3 +12,10 @@ export interface PaginatedBodyweights {
   page: number;
   totalPages: number;
 }
+
+export interface LogBodyweightPayload {
+  weight: number;
+  unit: "kg" | "lbs";
+  date?: Date;
+  notes?: string;
+}
