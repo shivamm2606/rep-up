@@ -28,6 +28,7 @@ export interface IExerciseLog {
 }
 
 export interface IWorkoutSession {
+  _id: string;
   userId: string;
   name?: string;
   date: string;
