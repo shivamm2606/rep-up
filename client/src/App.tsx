@@ -7,6 +7,7 @@ import api from "./lib/axios";
 import useAuthStore from "./store/authStore";
 import Register from "./pages/Register";
 import VerifyOtp from "./pages/VerifyOtp";
+import MainLayout from "./layouts/MainLayout";
 
 function RootRedirect() {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
@@ -27,7 +28,6 @@ function App() {
         const user = response.data.data;
         setAuth(user);
         setLoading(false);
-        console.log("auth store:", useAuthStore.getState());
       })
       .catch((err) => {
         console.log("not logged in:", err);
@@ -41,14 +41,17 @@ function App() {
       <Route path="/login" element={<Login />} />
       <Route path="/verify-otp" element={<VerifyOtp />} />
       <Route path="/register" element={<Register />} />
-      <Route
-        path="/dashboard"
-        element={
-          <ProtectedRoute>
-            <Dashboard />
-          </ProtectedRoute>
-        }
-      />
+
+      {/* protected + layout */}
+      <Route element={<ProtectedRoute />}>
+        <Route element={<MainLayout />}>
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/templates" element={<div>Templates</div>} />
+          <Route path="/workout" element={<div>Workout</div>} />
+          <Route path="/history" element={<div>History</div>} />
+          <Route path="/profile" element={<div>Profile</div>} />
+        </Route>
+      </Route>
     </Routes>
   );
 }

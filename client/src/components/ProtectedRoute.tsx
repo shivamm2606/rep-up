@@ -1,7 +1,7 @@
-import { Navigate } from "react-router-dom";
+import { Navigate, Outlet } from "react-router-dom";
 import useAuthStore from "../store/authStore";
 
-function ProtectedRoute({ children }) {
+function ProtectedRoute() {
   const isLoading = useAuthStore((state) => state.isLoading);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
@@ -11,7 +11,7 @@ function ProtectedRoute({ children }) {
     return <Navigate to="/login" />;
   }
 
-  return children;
+  return <Outlet />;
 }
 
 export default ProtectedRoute;
