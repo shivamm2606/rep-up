@@ -138,7 +138,7 @@ class UserService implements IUserService {
 
       await sendEmail(
         email,
-        "Verify your new email — RepUp",
+        "Verify your new email - RepUp",
         `<div style="font-family: Arial, sans-serif; max-width: 480px; margin: auto; padding: 32px; border: 1px solid #e0e0e0; border-radius: 8px;">
   <h2 style="color: #111;">Verify your new email</h2>
   <p style="color: #444;">You changed your email address. Use the OTP below to verify it.</p>
