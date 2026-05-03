@@ -3,7 +3,7 @@ import api from "../../lib/axios";
 import type { ApiSuccessResponse } from "../../types/apiErrorResponse";
 import type { PaginatedSessions } from "../../types/workoutSession.types";
 
-export const useWorkoutSession = () => {
+export const useWorkoutSessions = () => {
   return useQuery({
     queryKey: ["AllWorkoutSessions"],
     queryFn: (): Promise<ApiSuccessResponse<PaginatedSessions>> =>
