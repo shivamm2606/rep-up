@@ -43,7 +43,7 @@ const navItems = [
   {
     label: "Workout",
     path: "/workout",
-    // ✅ Fixed: was a clock icon, now a dumbbell
+    
     icon: (color: string) => (
       <svg
         width="20"
