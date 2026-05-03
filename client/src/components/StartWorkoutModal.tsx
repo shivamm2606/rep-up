@@ -44,15 +44,16 @@ const OptionCard = ({
       onTouchStart={() => setPressed(true)}
       onTouchEnd={() => setPressed(false)}
       className={`
-        w-full text-left rounded-[20px] p-[18px]
+        w-full text-left rounded-[20px] p-[20px]
         border transition-all duration-150 relative overflow-hidden
+        hover:border-[#2a2a38] hover:bg-[#15151d]
         ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
         ${pressed ? `${accent.cardPressed} ${accent.borderPressed} scale-[0.985]` : `bg-[#13131a] ${accent.borderIdle}`}
       `}
     >
-      <div className="flex items-center gap-4 relative z-10">
+      <div className="flex items-center gap-[14px] relative z-10">
         <div
-          className={`w-[52px] h-[52px] rounded-2xl shrink-0 flex items-center justify-center border ${accent.iconBg} ${accent.badgeBorder}`}
+          className={`w-[48px] h-[48px] rounded-[16px] shrink-0 flex items-center justify-center border ${accent.iconBg} ${accent.badgeBorder}`}
         >
           {icon}
         </div>
@@ -69,7 +70,7 @@ const OptionCard = ({
               </span>
             )}
           </div>
-          <p className="text-[12px] text-[#55556a] m-0 leading-relaxed">
+          <p className="text-[12px] text-[#6b6b80] m-0 leading-relaxed">
             {description}
           </p>
         </div>
@@ -129,7 +130,7 @@ export const StartWorkoutModal = ({ onClose }: Props) => {
 
       <div
         onClick={(e) => e.stopPropagation()}
-        className="w-full bg-[#0d0d12] border-t border-l border-r border-[#1e1e28] rounded-t-[28px] px-4 pb-[90px]"
+        className="w-full max-w-[520px] mx-auto bg-[#0d0d12] border-t border-l border-r border-[#1e1e28] rounded-t-[28px] px-5 pb-[90px]"
         style={{ animation: "sheetUp 0.32s cubic-bezier(0.34, 1.4, 0.64, 1)" }}
       >
         {/* Handle */}
@@ -150,7 +151,7 @@ export const StartWorkoutModal = ({ onClose }: Props) => {
         </div>
 
         {/* Options */}
-        <div className="flex flex-col gap-2.5">
+        <div className="flex flex-col gap-3">
           <OptionCard
             onClick={() => setShowTemplates(true)}
             label="Use a Template"

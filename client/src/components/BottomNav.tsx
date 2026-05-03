@@ -9,8 +9,8 @@ const navItems = [
     path: "/dashboard",
     icon: (color: string) => (
       <svg
-        width="20"
-        height="20"
+        width="22"
+        height="22"
         viewBox="0 0 22 22"
         fill="none"
         stroke={color}
@@ -27,8 +27,8 @@ const navItems = [
     path: "/templates",
     icon: (color: string) => (
       <svg
-        width="20"
-        height="20"
+        width="22"
+        height="22"
         viewBox="0 0 22 22"
         fill="none"
         stroke={color}
@@ -43,11 +43,11 @@ const navItems = [
   {
     label: "Workout",
     path: "/workout",
-    
+
     icon: (color: string) => (
       <svg
-        width="20"
-        height="20"
+        width="22"
+        height="22"
         viewBox="0 0 22 22"
         fill="none"
         stroke={color}
@@ -65,18 +65,24 @@ const navItems = [
     path: "/history",
     icon: (color: string) => (
       <svg
-        width="20"
-        height="20"
+        width="22"
+        height="22"
         viewBox="0 0 22 22"
         fill="none"
         stroke={color}
       >
-        <rect x="3" y="3" width="16" height="16" rx="2" strokeWidth="1.6" />
+        <path d="M4 17V5" strokeWidth="1.6" strokeLinecap="round" />
+        <path d="M4 17h14" strokeWidth="1.6" strokeLinecap="round" />
         <path
-          d="M3 17l4-4 4 3 4-6 4 2"
+          d="M6.5 14l3-3 3 2.5 3.5-4"
           strokeWidth="1.6"
           strokeLinecap="round"
+          strokeLinejoin="round"
         />
+        <circle cx="6.5" cy="14" r="1" strokeWidth="1.6" />
+        <circle cx="9.5" cy="11" r="1" strokeWidth="1.6" />
+        <circle cx="12.5" cy="13.5" r="1" strokeWidth="1.6" />
+        <circle cx="16" cy="9.5" r="1" strokeWidth="1.6" />
       </svg>
     ),
   },
@@ -85,8 +91,8 @@ const navItems = [
     path: "/profile",
     icon: (color: string) => (
       <svg
-        width="20"
-        height="20"
+        width="22"
+        height="22"
         viewBox="0 0 22 22"
         fill="none"
         stroke={color}
@@ -107,57 +113,55 @@ function BottomNav() {
   const { pathname } = useLocation();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 flex border-t border-[#2a2a38] bg-[#16161f]">
-      {navItems.map((item) => {
-        const active = pathname.startsWith(item.path);
-        const color = active ? ACTIVE_COLOR : INACTIVE_COLOR;
+    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-[#1f1f26] bg-[#14141b]/95 backdrop-blur-md shadow-[0_-8px_20px_rgba(0,0,0,0.35)]">
+      <div className="mx-auto flex w-full max-w-[560px] px-[16px] pt-[6px] pb-[calc(8px+env(safe-area-inset-bottom))]">
+        {navItems.map((item) => {
+          const active = pathname.startsWith(item.path);
+          const color = active ? ACTIVE_COLOR : INACTIVE_COLOR;
 
-        return (
-          <button
-            key={item.path}
-            type="button"
-            onClick={() => navigate(item.path)}
-            className="
-              flex-1 flex flex-col items-center
-              gap-1 pt-3 pb-4
-              bg-transparent border-none
-              cursor-pointer
-              active:scale-95
-              transition-all duration-150
-            "
-          >
-            {/* ICON */}
-            <div
+          return (
+            <button
+              key={item.path}
+              type="button"
+              onClick={() => navigate(item.path)}
               className={`
-                transition-all duration-200
+                flex-1 flex flex-col items-center justify-center
+                gap-[5px] min-h-[56px]
+                bg-transparent border-none
+                cursor-pointer
+                active:scale-95
+                transition-all duration-150
                 ${active ? "-translate-y-[2px]" : ""}
               `}
             >
-              {item.icon(color)}
-            </div>
+              {/* ICON */}
+              <div className="transition-all duration-200">
+                {item.icon(color)}
+              </div>
 
-            {/* LABEL */}
-            <span
-              className={`
-                text-[9px] font-bold uppercase tracking-widest
-                transition-colors
-                ${active ? "text-[#4ade80]" : "text-[#6b6b80]"}
-              `}
-            >
-              {item.label}
-            </span>
+              {/* LABEL */}
+              <span
+                className={`
+                  text-[10px] font-extrabold uppercase tracking-[0.12em] leading-[1]
+                  transition-colors
+                  ${active ? "text-[#4ade80]" : "text-[#6b6b80]"}
+                `}
+              >
+                {item.label}
+              </span>
 
-            {/* UNDERLINE */}
-            <span
-              className={`
-                w-4 h-0.5 rounded-full bg-[#4ade80]
-                transition-transform duration-200 origin-center
-                ${active ? "scale-x-100" : "scale-x-0"}
-              `}
-            />
-          </button>
-        );
-      })}
+              {/* UNDERLINE */}
+              <span
+                className={`
+                  w-[16px] h-[2px] rounded-full bg-[#4ade80]
+                  transition-transform duration-200 origin-center
+                  ${active ? "scale-x-100" : "scale-x-0"}
+                `}
+              />
+            </button>
+          );
+        })}
+      </div>
     </nav>
   );
 }

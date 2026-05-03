@@ -38,7 +38,7 @@ export const TemplateSelector = ({ onBack, onClose }: Props) => {
 
       <div
         onClick={(e) => e.stopPropagation()}
-        className="w-full bg-[#0d0d12] border-t border-l border-r border-[#1e1e28] rounded-t-[28px] px-4 pb-[90px] max-h-[80vh] flex flex-col"
+        className="w-full max-w-[520px] mx-auto bg-[#0d0d12] border-t border-l border-r border-[#1e1e28] rounded-t-[28px] px-5 pb-[90px] max-h-[80vh] flex flex-col"
         style={{ animation: "sheetUp 0.32s cubic-bezier(0.34, 1.4, 0.64, 1)" }}
       >
         {/* Handle */}
@@ -145,13 +145,13 @@ export const TemplateSelector = ({ onBack, onClose }: Props) => {
             !isError &&
             templates?.templates &&
             templates.templates.length > 0 && (
-              <div className="flex flex-col gap-2.5 pb-4">
+              <div className="flex flex-col gap-3 pb-6">
                 {templates.templates.map((template) => (
                   <button
                     key={template._id}
                     onClick={() => handleSelectTemplate(template._id)}
                     disabled={isPending}
-                    className="w-full bg-[#13131a] hover:bg-[#16161e] border border-[#1e1e28] rounded-[18px] p-[16px] text-left transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full bg-[#13131a] hover:bg-[#15151d] hover:border-[#2a2a38] border border-[#1e1e28] rounded-[18px] p-[16px] text-left transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <div className="flex items-center justify-between">
                       <div>
