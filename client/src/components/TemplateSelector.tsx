@@ -1,6 +1,7 @@
 import { useGetTemplates } from "../hooks/workoutTemplate/useGetTemplates.js";
 import { useCreateSession } from "../hooks/sessions/useCreateSession.js";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 interface Props {
   onBack: () => void;
@@ -11,8 +12,10 @@ export const TemplateSelector = ({ onBack, onClose }: Props) => {
   const { data: templates, isLoading, isError } = useGetTemplates();
   const { mutate: createSession, isPending } = useCreateSession();
   const navigate = useNavigate();
+  const [pendingTemplateId, setPendingTemplateId] = useState<string | null>(null);
 
   const handleSelectTemplate = (templateId: string) => {
+    setPendingTemplateId(templateId);
     createSession(
       { templateUsed: templateId },
       {
@@ -20,13 +23,16 @@ export const TemplateSelector = ({ onBack, onClose }: Props) => {
           onClose();
           navigate(`/workout/${response._id}`);
         },
+        onSettled: () => {
+          setPendingTemplateId(null);
+        },
       },
     );
   };
 
   return (
     <div
-      onClick={onClose}
+      onClick={isPending ? undefined : onClose}
       className="fixed inset-0 z-[60] flex flex-col justify-end bg-black/60 backdrop-blur-sm"
     >
       <style>{`
@@ -145,8 +151,10 @@ export const TemplateSelector = ({ onBack, onClose }: Props) => {
             !isError &&
             templates?.templates &&
             templates.templates.length > 0 && (
-              <div className="flex flex-col gap-3 pb-6">
-                {templates.templates.map((template) => (
+              <div className="flex flex-col gap-3 pb-10">
+                {templates.templates.map((template) => {
+                  const isThisPending = pendingTemplateId === template._id;
+                  return (
                   <button
                     key={template._id}
                     onClick={() => handleSelectTemplate(template._id)}
@@ -164,6 +172,12 @@ export const TemplateSelector = ({ onBack, onClose }: Props) => {
                         </p>
                       </div>
                       <div className="w-7 h-7 rounded-[9px] bg-[#1a1a24] border border-[#24242e] flex items-center justify-center shrink-0">
+                        {isThisPending ? (
+                          <svg className="animate-spin" width="14" height="14" viewBox="0 0 24 24" fill="none">
+                            <circle cx="12" cy="12" r="10" stroke="#44445a" strokeWidth="2.5" />
+                            <path d="M12 2a10 10 0 0 1 10 10" stroke="#7b9dff" strokeWidth="2.5" strokeLinecap="round" />
+                          </svg>
+                        ) : (
                         <svg
                           width="12"
                           height="12"
@@ -178,10 +192,12 @@ export const TemplateSelector = ({ onBack, onClose }: Props) => {
                             strokeLinejoin="round"
                           />
                         </svg>
+                        )}
                       </div>
                     </div>
                   </button>
-                ))}
+                  );
+                })}
               </div>
             )}
         </div>

@@ -111,14 +111,14 @@ export const StartWorkoutModal = ({ onClose }: Props) => {
     return (
       <TemplateSelector
         onBack={() => setShowTemplates(false)}
-        onClose={onClose}
+        onClose={isPending ? () => {} : onClose}
       />
     );
   }
 
   return (
     <div
-      onClick={onClose}
+      onClick={isPending ? undefined : onClose}
       className="fixed inset-0 z-[60] flex flex-col justify-end bg-black/60 backdrop-blur-sm"
     >
       <style>{`

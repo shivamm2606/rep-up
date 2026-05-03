@@ -1,10 +1,15 @@
 import { useBodyweightLog } from "../hooks/bodyweight/useBodyweightLog";
 import { useCurrentUser } from "../hooks/user/useCurrentUser";
-import { useWorkoutSession } from "../hooks/sessions/useWorkoutSession";
+import { useWorkoutSessions } from "../hooks/sessions/useWorkoutSessions";
 import { getGreeting } from "../utils/getGreeting";
 import { useNavigate } from "react-router-dom";
 import { useState, useMemo } from "react";
 import { StartWorkoutModal } from "../components/StartWorkoutModal";
+import { DashboardHeader } from "../components/dashboard/DashboardHeader";
+import { WorkoutCTA } from "../components/dashboard/WorkoutCTA";
+import { StatCard } from "../components/dashboard/StatCard";
+import { QuickActionCard } from "../components/dashboard/QuickActionCard";
+import { LastSessionCard } from "../components/dashboard/LastSessionCard";
 
 const QUOTES = [
   { text: "ready to lift?" },
@@ -24,34 +29,38 @@ const QUOTES = [
 function getDailyQuote() {
   const todayKey = new Date().toDateString();
 
-  if (typeof localStorage !== "undefined") {
-    const stored = localStorage.getItem("dailyQuote");
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored);
-        if (parsed.date === todayKey) return parsed.quote;
-      } catch {
-        localStorage.removeItem("dailyQuote");
-      }
+  const stored = localStorage.getItem("dailyQuote");
+  if (stored) {
+    try {
+      const parsed = JSON.parse(stored);
+      if (parsed.date === todayKey) return parsed.quote;
+    } catch {
+      localStorage.removeItem("dailyQuote");
     }
   }
 
   const randomQuote = QUOTES[Math.floor(Math.random() * QUOTES.length)];
 
-  if (typeof localStorage !== "undefined") {
-    localStorage.setItem(
-      "dailyQuote",
-      JSON.stringify({ date: todayKey, quote: randomQuote }),
-    );
-  }
+  localStorage.setItem(
+    "dailyQuote",
+    JSON.stringify({ date: todayKey, quote: randomQuote }),
+  );
 
   return randomQuote;
+}
+
+function SectionLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <p className="text-[12px] font-semibold text-[#8b8b9a] mb-[10px] tracking-[0.04em]">
+      {children}
+    </p>
+  );
 }
 
 function Dashboard() {
   const navigate = useNavigate();
   const { data: user } = useCurrentUser();
-  const { data: sessions } = useWorkoutSession();
+  const { data: sessions } = useWorkoutSessions();
   const { data: bwLogs } = useBodyweightLog();
 
   const latestBW = bwLogs?.logs?.[0];
@@ -98,11 +107,6 @@ function Dashboard() {
     });
   }, []);
 
-  const formattedLastSessionDate = useMemo(() => {
-    if (!lastSession) return null;
-    return new Date(lastSession.date).toLocaleDateString();
-  }, [lastSession]);
-
   const streak = useMemo(() => {
     if (allSessions.length === 0) return 0;
 
@@ -113,6 +117,9 @@ function Dashboard() {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
+    // If the user trained today, count starts from today (offset 0).
+    // Otherwise, start from yesterday (offset 1) - if yesterday also has
+    // no session the while-loop breaks immediately, returning streak = 0.
     const startOffset = sessionDays.has(today.toDateString()) ? 0 : 1;
 
     let count = 0;
@@ -139,271 +146,130 @@ function Dashboard() {
     return new Date(latestBW.date).toDateString() === today;
   }, [latestBW]);
 
+  const bwSubtitle = latestBW
+    ? bwLoggedToday
+      ? "logged today"
+      : `logged ${new Date(latestBW.date).toLocaleDateString()}`
+    : "no log yet";
+
   return (
     <div className="bg-[#0b0b10] bg-[radial-gradient(140%_90%_at_50%_0%,_rgba(70,80,120,0.16),_rgba(11,11,16,0)_55%),linear-gradient(180deg,_rgba(12,12,18,1)_0%,_rgba(10,10,16,1)_100%)] text-[#f4f4f6] min-h-screen pb-[82px]">
-      {/* HEADER */}
-      <div className="px-[16px] pt-[24px] pb-[16px] border-b border-[#1f1f26]">
-        <div className="flex items-start justify-between gap-[12px]">
-          <div className="flex-1">
-            <p className="text-[11px] font-bold text-[#8b8b9a] tracking-[0.08em] uppercase">
-              {getGreeting()}
-            </p>
+      <DashboardHeader
+        greeting={getGreeting()}
+        userName={user?.name ?? "-"}
+        date={formattedDate}
+        quote={dailyQuote.text}
+        streak={streak}
+      />
 
-            <h1 className="text-[32px] font-black tracking-[-0.035em] leading-[1.1] mt-[3px]">
-              {user?.name ?? "-"}
-            </h1>
+      <div className="space-y-5 px-4 py-[18px]">
+        <div>
+          <SectionLabel>Today</SectionLabel>
+          <WorkoutCTA onStart={() => setShowWorkoutModal(true)} />
+        </div>
 
-            <p className="text-[12px] font-medium text-[#8b8b9a] mt-[6px] leading-[1.45]">
-              {formattedDate} -{" "}
-              {dailyQuote.text.length > 60
-                ? dailyQuote.text.slice(0, 60) + "..."
-                : dailyQuote.text}
-            </p>
-          </div>
-
-          <div className="flex items-center gap-[5px] bg-[#1a1a20] border border-[#1f1f26] rounded-[12px] px-[12px] py-[8px] shrink-0 mt-[2px]">
-            <span className="text-[15px] leading-[1]">🔥</span>
-            <span className="text-[15px] font-extrabold font-mono tracking-[-0.02em]">
-              {streak}
-            </span>
+        <div>
+          <SectionLabel>This Week</SectionLabel>
+          <div className="grid grid-cols-2 gap-[10px]">
+            <StatCard
+              label="Sessions"
+              value={weeklyCount}
+              unit="/ wk"
+              subtitle={`${diff >= 0 ? `+${diff}` : diff} from last week`}
+              subtitleColor={diff >= 0 ? "text-[#3ddc97]" : "text-[#ef4444]"}
+            />
+            <StatCard
+              label="Bodyweight"
+              value={latestBW?.weight ?? "-"}
+              unit="kg"
+              subtitle={bwSubtitle}
+            />
           </div>
         </div>
-      </div>
 
-      {/* CONTENT */}
-      <div className="space-y-[18px] px-[16px] py-[18px]">
-        {/* TODAY */}
         <div>
-          <p className="text-[12px] font-semibold text-[#8b8b9a] mb-[10px] tracking-[0.04em]">
-            Today
-          </p>
-
-          <button
-            onClick={() => setShowWorkoutModal(true)}
-            className="
-              w-full text-left relative overflow-hidden
-              bg-[rgba(91,124,255,0.08)] border border-[rgba(91,124,255,0.25)]
-              rounded-[20px] px-[18px] py-[18px]
-              transition-all duration-200
-            "
-          >
-            <div className="absolute -top-[28px] -right-[28px] w-[100px] h-[100px] rounded-full bg-[rgba(123,149,255,0.25)]" />
-            <div className="absolute -bottom-[32px] left-0 w-[70px] h-[70px] rounded-full bg-[rgba(50,80,200,0.2)]" />
-
-            <div className="relative flex items-center justify-between gap-[14px]">
-              <div className="flex flex-col flex-1">
-                <p className="text-[11px] font-bold text-[#8b8b9a] uppercase tracking-[0.08em] mb-[4px]">
-                  Ready to train?
-                </p>
-
-                <p className="text-[26px] font-black tracking-[-0.035em] leading-[1.05]">
-                  Start Workout
-                </p>
-
-                <p className="text-[12px] font-semibold text-[#8b8b9a] font-mono mt-[8px]">
-                  ready when you are
-                </p>
-              </div>
-
-              <div className="w-[42px] h-[42px] rounded-[12px] bg-[rgba(255,255,255,0.12)] border border-[rgba(255,255,255,0.18)] flex items-center justify-center shrink-0">
-                <svg width="20" height="20" viewBox="0 0 24 24">
-                  <path
-                    d="M5 12h14M13 6l6 6-6 6"
-                    stroke="#fff"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
+          <SectionLabel>Quick Actions</SectionLabel>
+          <div className="grid grid-cols-2 gap-[10px]">
+            <QuickActionCard
+              label="View Templates"
+              onClick={() => navigate("/templates")}
+              icon={
+                <svg width="15" height="15" viewBox="0 0 22 22" fill="none">
+                  <rect
+                    x="3"
+                    y="3"
+                    width="7"
+                    height="7"
+                    rx="1.5"
+                    stroke="#8b8b9a"
+                    strokeWidth="1.5"
+                  />
+                  <rect
+                    x="12"
+                    y="3"
+                    width="7"
+                    height="7"
+                    rx="1.5"
+                    stroke="#8b8b9a"
+                    strokeWidth="1.5"
+                  />
+                  <rect
+                    x="3"
+                    y="12"
+                    width="7"
+                    height="7"
+                    rx="1.5"
+                    stroke="#8b8b9a"
+                    strokeWidth="1.5"
+                  />
+                  <rect
+                    x="12"
+                    y="12"
+                    width="7"
+                    height="7"
+                    rx="1.5"
+                    stroke="#8b8b9a"
+                    strokeWidth="1.5"
                   />
                 </svg>
-              </div>
-            </div>
-          </button>
-        </div>
-
-        {/* WEEK */}
-        <div>
-          <p className="text-[12px] font-semibold text-[#8b8b9a] mb-[10px] tracking-[0.04em]">
-            This Week
-          </p>
-
-          <div className="grid grid-cols-2 gap-[10px]">
-            <div className="bg-[#121216] rounded-[16px] p-[16px]">
-              <p className="text-[11px] text-[#8b8b9a] mb-[12px]">Sessions</p>
-
-              <div className="flex items-baseline gap-[6px] mb-[8px]">
-                <p className="text-[30px] font-extrabold leading-[1]">
-                  {weeklyCount}
-                </p>
-                <span className="text-[12px] text-[#8b8b9a]">/ wk</span>
-              </div>
-
-              <p
-                className={`text-[11px] ${diff >= 0 ? "text-[#3ddc97]" : "text-[#ef4444]"}`}
-              >
-                {diff >= 0 ? `+${diff}` : diff} from last week
-              </p>
-            </div>
-
-            <div className="bg-[#121216] rounded-[16px] p-[16px]">
-              <p className="text-[11px] text-[#8b8b9a] mb-[12px]">Bodyweight</p>
-
-              <p className="text-[28px] font-black leading-[1] mb-[8px]">
-                {latestBW?.weight ?? "-"}
-                <span className="text-[14px] text-[#8b8b9a]"> kg</span>
-              </p>
-
-              <p className="text-[11px] text-[#8b8b9a]">
-                {latestBW
-                  ? bwLoggedToday
-                    ? "logged today"
-                    : `logged ${new Date(latestBW.date).toLocaleDateString()}`
-                  : "no log yet"}
-              </p>
-            </div>
+              }
+            />
+            <QuickActionCard
+              label="Log Bodyweight"
+              onClick={() => navigate("/bodyweight/log")}
+              icon={
+                <svg width="15" height="15" viewBox="0 0 22 22" fill="none">
+                  <rect
+                    x="3"
+                    y="8"
+                    width="16"
+                    height="11"
+                    rx="2"
+                    stroke="#8b8b9a"
+                    strokeWidth="1.5"
+                  />
+                  <path
+                    d="M8 8C8 5.79 9.79 4 12 4s4 1.79 4 4"
+                    stroke="#8b8b9a"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                  />
+                  <path
+                    d="M12 12v2"
+                    stroke="#8b8b9a"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                  />
+                  <circle cx="12" cy="14.5" r="0.75" fill="#8b8b9a" />
+                </svg>
+              }
+            />
           </div>
         </div>
 
-        {/* QUICK ACTIONS */}
         <div>
-          <p className="text-[12px] font-semibold text-[#8b8b9a] mb-[10px] tracking-[0.04em]">
-            Quick Actions
-          </p>
-
-          <div className="grid grid-cols-2 gap-[10px]">
-            {[
-              {
-                label: "View Templates",
-                path: "/templates",
-                icon: (
-                  <svg width="15" height="15" viewBox="0 0 22 22" fill="none">
-                    <rect
-                      x="3"
-                      y="3"
-                      width="7"
-                      height="7"
-                      rx="1.5"
-                      stroke="#8b8b9a"
-                      strokeWidth="1.5"
-                    />
-                    <rect
-                      x="12"
-                      y="3"
-                      width="7"
-                      height="7"
-                      rx="1.5"
-                      stroke="#8b8b9a"
-                      strokeWidth="1.5"
-                    />
-                    <rect
-                      x="3"
-                      y="12"
-                      width="7"
-                      height="7"
-                      rx="1.5"
-                      stroke="#8b8b9a"
-                      strokeWidth="1.5"
-                    />
-                    <rect
-                      x="12"
-                      y="12"
-                      width="7"
-                      height="7"
-                      rx="1.5"
-                      stroke="#8b8b9a"
-                      strokeWidth="1.5"
-                    />
-                  </svg>
-                ),
-              },
-              {
-                label: "Log Bodyweight",
-                path: "/bodyweight/log",
-                icon: (
-                  <svg width="15" height="15" viewBox="0 0 22 22" fill="none">
-                    <rect
-                      x="3"
-                      y="8"
-                      width="16"
-                      height="11"
-                      rx="2"
-                      stroke="#8b8b9a"
-                      strokeWidth="1.5"
-                    />
-                    <path
-                      d="M8 8C8 5.79 9.79 4 12 4s4 1.79 4 4"
-                      stroke="#8b8b9a"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                    />
-                    <path
-                      d="M12 12v2"
-                      stroke="#8b8b9a"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                    />
-                    <circle cx="12" cy="14.5" r="0.75" fill="#8b8b9a" />
-                  </svg>
-                ),
-              },
-            ].map((item) => (
-              <button
-                key={item.path}
-                onClick={() => navigate(item.path)}
-                className="bg-[#121216] rounded-[16px] p-[16px] min-h-[108px] flex flex-col justify-between text-left"
-              >
-                <div className="flex items-start justify-between">
-                  <div className="w-[32px] h-[32px] rounded-[9px] bg-[#1a1a20] border border-[#1f1f26] flex items-center justify-center">
-                    {item.icon}
-                  </div>
-
-                  <div className="w-[24px] h-[24px] rounded-[7px] bg-[#1a1a20] flex items-center justify-center">
-                    <svg width="11" height="11" viewBox="0 0 14 14" fill="none">
-                      <path
-                        d="M3 7h8M7 3l4 4-4 4"
-                        stroke="#8b8b9a"
-                        strokeWidth="1.6"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                  </div>
-                </div>
-
-                <p className="text-[14px] font-extrabold tracking-[-0.02em]">
-                  {item.label}
-                </p>
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* LAST SESSION */}
-        <div>
-          <p className="text-[12px] font-semibold text-[#8b8b9a] mb-[10px] tracking-[0.04em]">
-            Last Session
-          </p>
-
-          <div className="bg-[#121216] rounded-[16px] p-[16px]">
-            {lastSession ? (
-              <>
-                <p className="text-[10px] font-bold text-[#8b8b9a] uppercase tracking-[0.09em] mb-[14px]">
-                  Most recent workout
-                </p>
-
-                <p className="text-[16px] font-extrabold tracking-[-0.025em] leading-[1.2]">
-                  {lastSession.name ?? "Unnamed"}
-                </p>
-
-                <p className="text-[11px] text-[#8b8b9a] mt-[6px]">
-                  {formattedLastSessionDate}
-                </p>
-              </>
-            ) : (
-              <p className="text-[13px] text-[#8b8b9a] text-center py-[12px]">
-                No sessions yet - start your first workout!
-              </p>
-            )}
-          </div>
+          <SectionLabel>Last Session</SectionLabel>
+          <LastSessionCard session={lastSession} />
         </div>
       </div>
 
