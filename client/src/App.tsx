@@ -9,6 +9,7 @@ import Register from "./pages/Register";
 import VerifyOtp from "./pages/VerifyOtp";
 import MainLayout from "./layouts/MainLayout";
 import Welcome from "./pages/Welcome";
+import Onboarding from "./pages/Onboarding";
 
 function RootRedirect() {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
@@ -46,6 +47,7 @@ function App() {
 
       {/* protected + layout */}
       <Route element={<ProtectedRoute />}>
+        <Route path="/onboarding" element={<Onboarding />} />
         <Route element={<MainLayout />}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/templates" element={<div>Templates</div>} />
