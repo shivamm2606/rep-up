@@ -8,13 +8,14 @@ import useAuthStore from "./store/authStore";
 import Register from "./pages/Register";
 import VerifyOtp from "./pages/VerifyOtp";
 import MainLayout from "./layouts/MainLayout";
+import Welcome from "./pages/Welcome";
 
 function RootRedirect() {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const isLoading = useAuthStore((state) => state.isLoading);
 
   if (isLoading) return null;
-  return <Navigate to={isAuthenticated ? "/dashboard" : "/login"} />;
+  return <Navigate to={isAuthenticated ? "/dashboard" : "/welcome"} />;
 }
 
 function App() {
@@ -38,6 +39,7 @@ function App() {
   return (
     <Routes>
       <Route path="/" element={<RootRedirect />} />
+      <Route path="/welcome" element={<Welcome />} />
       <Route path="/login" element={<Login />} />
       <Route path="/verify-otp" element={<VerifyOtp />} />
       <Route path="/register" element={<Register />} />
