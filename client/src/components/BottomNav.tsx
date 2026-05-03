@@ -114,7 +114,7 @@ function BottomNav() {
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-[#1f1f26] bg-[#14141b]/95 backdrop-blur-md shadow-[0_-8px_20px_rgba(0,0,0,0.35)]">
-      <div className="mx-auto flex w-full max-w-[560px] px-[16px] pt-[6px] pb-[calc(8px+env(safe-area-inset-bottom))]">
+      <div className="mx-auto grid w-full max-w-[560px] grid-cols-5 px-[16px] pt-[6px] pb-[calc(8px+env(safe-area-inset-bottom))]">
         {navItems.map((item) => {
           const active = pathname.startsWith(item.path);
           const color = active ? ACTIVE_COLOR : INACTIVE_COLOR;
@@ -125,7 +125,7 @@ function BottomNav() {
               type="button"
               onClick={() => navigate(item.path)}
               className={`
-                flex-1 flex flex-col items-center justify-center
+                w-full flex flex-col items-center justify-center
                 gap-[5px] min-h-[56px]
                 bg-transparent border-none
                 cursor-pointer
@@ -142,7 +142,7 @@ function BottomNav() {
               {/* LABEL */}
               <span
                 className={`
-                  text-[10px] font-extrabold uppercase tracking-[0.12em] leading-[1]
+                  w-full text-center text-[10px] font-extrabold uppercase tracking-[0.12em] leading-[1]
                   transition-colors
                   ${active ? "text-[#4ade80]" : "text-[#6b6b80]"}
                 `}

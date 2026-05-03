@@ -103,7 +103,8 @@ function DesktopView() {
           width: "600px",
           height: "600px",
           borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(71,184,255,0.07) 0%, transparent 70%)",
+          background:
+            "radial-gradient(circle, rgba(71,184,255,0.07) 0%, transparent 70%)",
           pointerEvents: "none",
           zIndex: 0,
         }}
@@ -116,7 +117,8 @@ function DesktopView() {
           width: "500px",
           height: "500px",
           borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(71,184,255,0.05) 0%, transparent 70%)",
+          background:
+            "radial-gradient(circle, rgba(71,184,255,0.05) 0%, transparent 70%)",
           pointerEvents: "none",
           zIndex: 0,
         }}
@@ -234,9 +236,9 @@ function DesktopView() {
                 marginBottom: "3rem",
               }}
             >
-              RepUp is a mobile-first gym tracker built for serious lifters.
-              Log workouts, monitor progress, and hit your goals — one session
-              at a time.
+              RepUp is a mobile-first gym tracker built for serious lifters. Log
+              workouts, monitor progress, and hit your goals — one session at a
+              time.
             </p>
 
             {/* Mobile notice + QR */}
@@ -270,7 +272,8 @@ function DesktopView() {
                     maxWidth: "28ch",
                   }}
                 >
-                  Open on your phone or scan the QR code to install RepUp as an app.
+                  Open on your phone or scan the QR code to install RepUp as an
+                  app.
                 </p>
               </div>
               <div
@@ -281,7 +284,10 @@ function DesktopView() {
                   borderRadius: "12px",
                 }}
               >
-                <canvas ref={canvasRef} style={{ display: "block", borderRadius: "6px" }} />
+                <canvas
+                  ref={canvasRef}
+                  style={{ display: "block", borderRadius: "6px" }}
+                />
               </div>
             </div>
           </div>
@@ -423,21 +429,44 @@ function DesktopView() {
                   cursor: "default",
                 }}
                 onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(71,184,255,0.3)";
-                  (e.currentTarget as HTMLDivElement).style.transform = "translateY(-4px)";
+                  (e.currentTarget as HTMLDivElement).style.borderColor =
+                    "rgba(71,184,255,0.3)";
+                  (e.currentTarget as HTMLDivElement).style.transform =
+                    "translateY(-4px)";
                 }}
                 onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLDivElement).style.borderColor = "#222228";
-                  (e.currentTarget as HTMLDivElement).style.transform = "translateY(0)";
+                  (e.currentTarget as HTMLDivElement).style.borderColor =
+                    "#222228";
+                  (e.currentTarget as HTMLDivElement).style.transform =
+                    "translateY(0)";
                 }}
               >
-                <span style={{ fontSize: "1.75rem", display: "block", marginBottom: "1rem" }}>
+                <span
+                  style={{
+                    fontSize: "1.75rem",
+                    display: "block",
+                    marginBottom: "1rem",
+                  }}
+                >
                   {f.icon}
                 </span>
-                <p style={{ fontWeight: 700, fontSize: "0.95rem", marginBottom: "0.5rem", color: "#fff" }}>
+                <p
+                  style={{
+                    fontWeight: 700,
+                    fontSize: "0.95rem",
+                    marginBottom: "0.5rem",
+                    color: "#fff",
+                  }}
+                >
                   {f.title}
                 </p>
-                <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.825rem", lineHeight: 1.6 }}>
+                <p
+                  style={{
+                    color: "rgba(255,255,255,0.4)",
+                    fontSize: "0.825rem",
+                    lineHeight: 1.6,
+                  }}
+                >
                   {f.desc}
                 </p>
               </div>
@@ -626,7 +655,13 @@ function MobileLanding() {
           </button>
         )}
 
-        <p style={{ textAlign: "center", color: "rgba(255,255,255,0.45)", fontSize: "0.875rem" }}>
+        <p
+          style={{
+            textAlign: "center",
+            color: "rgba(255,255,255,0.45)",
+            fontSize: "0.875rem",
+          }}
+        >
           Already have an account?{" "}
           <button
             onClick={() => navigate("/login")}
