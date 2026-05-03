@@ -4,6 +4,7 @@ import { useWorkoutSession } from "../hooks/sessions/useWorkoutSession";
 import { getGreeting } from "../utils/getGreeting";
 import { useNavigate } from "react-router-dom";
 import { useState, useMemo } from "react";
+import { StartWorkoutModal } from "../components/StartWorkoutModal";
 
 const QUOTES = [
   { text: "ready to lift?" },
@@ -56,6 +57,7 @@ function Dashboard() {
   const latestBW = bwLogs?.logs?.[0];
 
   const [dailyQuote] = useState(getDailyQuote);
+  const [showWorkoutModal, setShowWorkoutModal] = useState(false);
 
   const allSessions = useMemo(() => sessions?.sessions ?? [], [sessions]);
 
@@ -175,7 +177,7 @@ function Dashboard() {
         </p>
 
         <button
-          onClick={() => navigate("/workout/start")}
+          onClick={() => setShowWorkoutModal(true)}
           className="
             w-full text-left relative overflow-hidden
             bg-[rgba(91,124,255,0.08)] border border-[rgba(91,124,255,0.25)]
@@ -399,6 +401,10 @@ function Dashboard() {
           )}
         </div>
       </div>
+
+      {showWorkoutModal && (
+        <StartWorkoutModal onClose={() => setShowWorkoutModal(false)} />
+      )}
     </div>
   );
 }
