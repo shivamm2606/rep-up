@@ -131,7 +131,7 @@ export const StartWorkoutModal = ({ onClose }: Props) => {
       <div
         onClick={(e) => e.stopPropagation()}
         className="w-full max-w-[520px] mx-auto bg-[#0d0d12] border-t border-l border-r border-[#1e1e28] rounded-t-[28px] px-5 pb-[90px]"
-        style={{ animation: "sheetUp 0.32s cubic-bezier(0.34, 1.4, 0.64, 1)" }}
+        style={{ animation: "sheetUp 0.34s cubic-bezier(0.22, 1.08, 0.36, 1)" }}
       >
         {/* Handle */}
         <div className="flex justify-center pt-[14px] pb-2">

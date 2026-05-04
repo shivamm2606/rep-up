@@ -45,7 +45,7 @@ export const TemplateSelector = ({ onBack, onClose }: Props) => {
       <div
         onClick={(e) => e.stopPropagation()}
         className="w-full max-w-[520px] mx-auto bg-[#0d0d12] border-t border-l border-r border-[#1e1e28] rounded-t-[28px] px-5 pb-[90px] max-h-[80vh] flex flex-col"
-        style={{ animation: "sheetUp 0.32s cubic-bezier(0.34, 1.4, 0.64, 1)" }}
+        style={{ animation: "sheetUp 0.34s cubic-bezier(0.22, 1.08, 0.36, 1)" }}
       >
         {/* Handle */}
         <div className="flex justify-center pt-[14px] pb-2 shrink-0">
@@ -96,7 +96,7 @@ export const TemplateSelector = ({ onBack, onClose }: Props) => {
 
           {!isLoading &&
             !isError &&
-            (!templates?.templates || templates.templates.length === 0) && (
+            (!templates || templates.length === 0) && (
               <div className="flex flex-col items-center justify-center py-16 gap-2">
                 <div className="w-12 h-12 rounded-2xl bg-[#13131a] border border-[#1e1e28] flex items-center justify-center mb-2">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -149,10 +149,10 @@ export const TemplateSelector = ({ onBack, onClose }: Props) => {
 
           {!isLoading &&
             !isError &&
-            templates?.templates &&
-            templates.templates.length > 0 && (
+            templates &&
+            templates.length > 0 && (
               <div className="flex flex-col gap-3 pb-10">
-                {templates.templates.map((template) => {
+                {templates.map((template) => {
                   const isThisPending = pendingTemplateId === template._id;
                   return (
                   <button
