@@ -66,7 +66,10 @@ class MongoWorkoutTemplateService implements IWorkoutTemplateService {
     templateId: string,
     userId: string,
   ): Promise<IWorkoutTemplate> => {
-    const template = await WorkoutTemplate.findById(templateId);
+    const template = await WorkoutTemplate.findById(templateId).populate(
+      "exercises.exerciseId",
+      "name muscleGroup category",
+    );
 
     if (!template) {
       throw new ApiError(400, "Template not found");
@@ -83,7 +86,7 @@ class MongoWorkoutTemplateService implements IWorkoutTemplateService {
     const adminUser = await User.findOne({ role: "admin" });
     const templates = await WorkoutTemplate.find({
       $or: [{ userId }, { userId: adminUser?._id }],
-    });
+    }).populate("exercises.exerciseId", "name muscleGroup category");
     return templates;
   };
 }

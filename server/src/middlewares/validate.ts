@@ -10,6 +10,10 @@ export const validate =
       return next(result.error);
     }
 
-    req[source] = result.data;
+    if (source === "query") {
+      Object.defineProperty(req, "query", { value: result.data, writable: true, configurable: true });
+    } else {
+      req[source] = result.data;
+    }
     next();
   };
