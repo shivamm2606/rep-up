@@ -25,3 +25,18 @@ h6 {
     "Segoe UI",
     sans-serif;
 }
+
+/* Sheet slide animations */
+@keyframes sheetUp {
+  from { transform: translateY(100%); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+@keyframes sheetDown {
+  from { transform: translateY(0);    opacity: 1; }
+  to   { transform: translateY(100%); opacity: 0; }
+}
+
+/* Subtle scrollbar for dark sheets */
+.sheet-panel::-webkit-scrollbar { width: 4px; }
+.sheet-panel::-webkit-scrollbar-track { background: transparent; }
+.sheet-panel::-webkit-scrollbar-thumb { background: #2a2a36; border-radius: 4px; }
