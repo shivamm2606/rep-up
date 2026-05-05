@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { useCreateSession } from "../hooks/sessions/useCreateSession.js";
+import { useCreateSession } from "../hooks/sessions/useCreateSession";
 import { useNavigate } from "react-router-dom";
-import TemplateSelector from "./TemplateSelector.js";
+import TemplateSelector from "./TemplateSelector";
 
 interface Props {
   onClose: () => void;

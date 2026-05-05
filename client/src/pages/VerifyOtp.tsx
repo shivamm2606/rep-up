@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { getErrorMessage } from "../utils/getErrorMessage.js";
-import { useVerifyOtp } from "../hooks/auth/useVerifyOtp.js";
-import { useResendOtp } from "../hooks/auth/useResendOtp.js";
-import { AuthLayout } from "../components/auth/AuthLayout.tsx";
-import { AuthHeader } from "../components/auth/AuthHeader.tsx";
-import { AuthAlert } from "../components/auth/AuthAlert.tsx";
+import { getErrorMessage } from "../utils/getErrorMessage";
+import { useVerifyOtp } from "../hooks/auth/useVerifyOtp";
+import { useResendOtp } from "../hooks/auth/useResendOtp";
+import { AuthLayout } from "../components/auth/AuthLayout";
+import { AuthHeader } from "../components/auth/AuthHeader";
+import { AuthAlert } from "../components/auth/AuthAlert";
 
 const OTP_LENGTH = 6;
 const RESEND_COOLDOWN = 59;

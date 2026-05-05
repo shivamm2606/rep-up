@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "../../lib/axios";
-import type { UpdateUserInfoPayload } from "../../types/user.types.js";
+import type { UpdateUserInfoPayload } from "../../types/user.types";
 
 export const useUpdateUserInfo = () => {
   const queryClient = useQueryClient();

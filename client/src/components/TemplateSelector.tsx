@@ -1,5 +1,5 @@
-import { useGetTemplates } from "../hooks/workoutTemplate/useGetTemplates.js";
-import { useCreateSession } from "../hooks/sessions/useCreateSession.js";
+import { useGetTemplates } from "../hooks/workoutTemplate/useGetTemplates";
+import { useCreateSession } from "../hooks/sessions/useCreateSession";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 

@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "../../lib/axios";
 import type { LogBodyweightPayload } from "../../types/bodyweight.types";
+import { toast } from "sonner";
 
 export const useLogBodyweight = () => {
   const queryClient = useQueryClient();
@@ -11,6 +12,10 @@ export const useLogBodyweight = () => {
 
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["AllBodyweightLogs"] });
+      toast.success("Bodyweight logged");
+    },
+    onError: () => {
+      toast.error("Failed to log bodyweight");
     },
   });
 };

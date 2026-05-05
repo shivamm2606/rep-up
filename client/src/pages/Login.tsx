@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useLogin } from "../hooks/auth/useLogin.ts";
-import { getErrorMessage } from "../utils/getErrorMessage.ts";
-import { AuthLayout } from "../components/auth/AuthLayout.tsx";
-import { AuthHeader } from "../components/auth/AuthHeader.tsx";
-import { AuthInput } from "../components/auth/AuthInput.tsx";
-import { AuthSubmitButton } from "../components/auth/AuthSubmitButton.tsx";
-import { AuthAlert } from "../components/auth/AuthAlert.tsx";
+import { useLogin } from "../hooks/auth/useLogin";
+import { getErrorMessage } from "../utils/getErrorMessage";
+import { AuthLayout } from "../components/auth/AuthLayout";
+import { AuthHeader } from "../components/auth/AuthHeader";
+import { AuthInput } from "../components/auth/AuthInput";
+import { AuthSubmitButton } from "../components/auth/AuthSubmitButton";
+import { AuthAlert } from "../components/auth/AuthAlert";
 
 const EyeOpen = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
