@@ -22,15 +22,15 @@ export function ExercisePicker({ alreadyAddedIds, onAdd, onBack }: Props) {
     category: selectedCategory || undefined,
   });
 
-  const toggleSelect = (ex: Exercise) => {
-    if (selected.find((s) => s._id === ex._id)) {
-      setSelected(selected.filter((s) => s._id !== ex._id));
+  const handleToggleExercise = (exercise: Exercise) => {
+    if (selected.find((s) => s._id === exercise._id)) {
+      setSelected(selected.filter((s) => s._id !== exercise._id));
     } else {
-      setSelected([...selected, ex]);
+      setSelected([...selected, exercise]);
     }
   };
 
-  const pickFilter = (value: string) => {
+  const handleSelectFilter = (value: string) => {
     if (openFilter === "muscle") {
       setSelectedMuscle(selectedMuscle === value ? "" : value);
     } else {
@@ -39,7 +39,7 @@ export function ExercisePicker({ alreadyAddedIds, onAdd, onBack }: Props) {
     setOpenFilter(null);
   };
 
-  const clearFilter = () => {
+  const handleClearFilter = () => {
     if (openFilter === "muscle") setSelectedMuscle("");
     else setSelectedCategory("");
     setOpenFilter(null);
@@ -123,7 +123,7 @@ export function ExercisePicker({ alreadyAddedIds, onAdd, onBack }: Props) {
             <div className="fixed inset-0 z-[70]" onClick={() => setOpenFilter(null)} />
             <div className="absolute top-[42px] left-0 z-[71] bg-[#16161e] border border-[#24242e] rounded-[12px] p-1.5 w-[140px] shadow-[0_8px_32px_rgba(0,0,0,0.5)]">
               <button
-                onClick={clearFilter}
+                onClick={handleClearFilter}
                 className={`w-full text-left px-3 py-[7px] rounded-[8px] text-[12px] font-bold transition-colors ${
                   !activeFilter ? "text-[#7b9dff] bg-[rgba(123,157,255,0.08)]" : "text-[#8b8b9a] hover:bg-[#1a1a24]"
                 }`}
@@ -133,7 +133,7 @@ export function ExercisePicker({ alreadyAddedIds, onAdd, onBack }: Props) {
               {filterItems.map((item) => (
                 <button
                   key={item}
-                  onClick={() => pickFilter(item)}
+                  onClick={() => handleSelectFilter(item)}
                   className={`w-full text-left px-3 py-[7px] rounded-[8px] text-[12px] font-bold transition-colors ${
                     activeFilter === item ? "text-[#7b9dff] bg-[rgba(123,157,255,0.08)]" : "text-[#8b8b9a] hover:bg-[#1a1a24]"
                   }`}
@@ -172,12 +172,12 @@ export function ExercisePicker({ alreadyAddedIds, onAdd, onBack }: Props) {
             {exercises.map((ex) => {
               const alreadyAdded = alreadyAddedIds.includes(ex._id);
               const checked = selected.some((s) => s._id === ex._id);
-              const c = getMuscleColor(ex.muscleGroup);
+              const muscleColor = getMuscleColor(ex.muscleGroup);
 
               return (
                 <button
                   key={ex._id}
-                  onClick={() => !alreadyAdded && toggleSelect(ex)}
+                  onClick={() => !alreadyAdded && handleToggleExercise(ex)}
                   disabled={alreadyAdded}
                   className={`w-full flex items-center gap-3 py-[12px] px-[14px] rounded-[12px] text-left transition-all duration-150 ${
                     alreadyAdded
@@ -211,7 +211,7 @@ export function ExercisePicker({ alreadyAddedIds, onAdd, onBack }: Props) {
                     </p>
                     <span
                       className="inline-block mt-1 text-[8.5px] font-bold tracking-[0.04em] uppercase px-[6px] py-[1.5px] rounded-[5px] border"
-                      style={{ background: c.bg, color: c.text, borderColor: c.border }}
+                      style={{ background: muscleColor.bg, color: muscleColor.text, borderColor: muscleColor.border }}
                     >
                       {formatMuscle(ex.muscleGroup)}
                     </span>

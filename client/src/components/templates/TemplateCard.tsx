@@ -7,13 +7,13 @@ interface TemplateCardProps {
 }
 
 export function TemplateCard({ template, onClick }: TemplateCardProps) {
-  const muscles: string[] = [];
+  const uniqueMuscleGroups: string[] = [];
   for (const ex of template.exercises) {
     if (typeof ex.exerciseId === "object" && ex.exerciseId !== null) {
       const group = (ex.exerciseId as PopulatedExercise).muscleGroup;
-      if (group && !muscles.includes(group)) muscles.push(group);
+      if (group && !uniqueMuscleGroups.includes(group)) uniqueMuscleGroups.push(group);
     }
-    if (muscles.length >= 4) break;
+    if (uniqueMuscleGroups.length >= 4) break;
   }
 
   return (
@@ -30,17 +30,17 @@ export function TemplateCard({ template, onClick }: TemplateCardProps) {
             {template.exercises.length} exercise{template.exercises.length !== 1 ? "s" : ""}
           </p>
 
-          {muscles.length > 0 && (
+          {uniqueMuscleGroups.length > 0 && (
             <div className="flex flex-wrap gap-[5px] mt-2.5">
-              {muscles.map((m) => {
-                const c = getMuscleColor(m);
+              {uniqueMuscleGroups.map((group) => {
+                const muscleColor = getMuscleColor(group);
                 return (
                   <span
-                    key={m}
+                    key={group}
                     className="text-[9px] font-bold tracking-[0.04em] uppercase px-[7px] py-[2.5px] rounded-md border"
-                    style={{ background: c.bg, color: c.text, borderColor: c.border }}
+                    style={{ background: muscleColor.bg, color: muscleColor.text, borderColor: muscleColor.border }}
                   >
-                    {formatMuscle(m)}
+                    {formatMuscle(group)}
                   </span>
                 );
               })}

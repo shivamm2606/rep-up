@@ -19,15 +19,15 @@ export function TemplateDetailSheet({ template, isOwner, onClose, onEdit }: Prop
   const [closing, setClosing] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
 
-  const busy = isPending || isDeleting;
+  const isLoading = isPending || isDeleting;
 
   const handleClose = () => {
-    if (busy) return;
+    if (isLoading) return;
     setClosing(true);
     setTimeout(onClose, 250);
   };
 
-  const handleStart = () => {
+  const handleStartWorkout = () => {
     createSession(
       { templateUsed: template._id },
       {
@@ -40,12 +40,7 @@ export function TemplateDetailSheet({ template, isOwner, onClose, onEdit }: Prop
   };
 
   const handleDelete = () => {
-    deleteTemplate(template._id, {
-      onSuccess: () => {
-        setClosing(true);
-        setTimeout(onClose, 250);
-      },
-    });
+    deleteTemplate(template._id, { onSuccess: handleClose });
   };
 
   return (
@@ -126,7 +121,7 @@ export function TemplateDetailSheet({ template, isOwner, onClose, onEdit }: Prop
               const populated =
                 typeof ex.exerciseId === "object" ? (ex.exerciseId as PopulatedExercise) : null;
               const muscle = populated?.muscleGroup ?? "";
-              const c = getMuscleColor(muscle);
+              const muscleColor = getMuscleColor(muscle);
 
               return (
                 <div
@@ -145,7 +140,7 @@ export function TemplateDetailSheet({ template, isOwner, onClose, onEdit }: Prop
                       {muscle && (
                         <span
                           className="text-[8.5px] font-bold tracking-[0.04em] uppercase px-[6px] py-[1.5px] rounded-[5px] border"
-                          style={{ background: c.bg, color: c.text, borderColor: c.border }}
+                          style={{ background: muscleColor.bg, color: muscleColor.text, borderColor: muscleColor.border }}
                         >
                           {formatMuscle(muscle)}
                         </span>
@@ -224,12 +219,12 @@ export function TemplateDetailSheet({ template, isOwner, onClose, onEdit }: Prop
 
               {/* Start Workout Button */}
               <button
-                onClick={handleStart}
-                disabled={busy}
+                onClick={handleStartWorkout}
+                disabled={isLoading}
                 className={`
                   flex-1 py-[15px] rounded-[14px] text-[15px] font-extrabold tracking-tight
                   transition-all duration-150
-                  ${busy
+                  ${isLoading
                     ? "bg-[#4ade80]/40 text-[#0b0b10]/60 cursor-not-allowed"
                     : "bg-[#4ade80] text-[#0b0b10] hover:bg-[#5eebb0] active:scale-[0.98]"
                   }

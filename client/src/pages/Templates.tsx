@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { useGetTemplates } from "../hooks/workoutTemplate/useGetTemplates";
 import { useCurrentUser } from "../hooks/user/useCurrentUser";
 import { TemplateCard } from "../components/templates/TemplateCard";
@@ -17,30 +17,21 @@ function Templates() {
   const [editTemplate, setEditTemplate] = useState<WorkoutTemplate | null>(null);
   const [search, setSearch] = useState("");
 
-  const defaultTemplates = (templates ?? []).filter((t) => t.userId !== user?._id);
-  const myTemplates = (templates ?? []).filter((t) => t.userId === user?._id);
+  const defaultTemplates = (templates ?? []).filter((template) => template.userId !== user?._id);
+  const myTemplates = (templates ?? []).filter((template) => template.userId === user?._id);
 
   const tabList = activeTab === "default" ? defaultTemplates : myTemplates;
 
-  const displayed = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    if (!q) return tabList;
-    return tabList.filter((t) => {
-      // match on template name
-      if (t.name.toLowerCase().includes(q)) return true;
-      // match on any exercise name or muscle group
-      return t.exercises.some((ex) => {
-        if (typeof ex.exerciseId === "object" && ex.exerciseId !== null) {
-          const pop = ex.exerciseId as PopulatedExercise;
-          return (
-            pop.name.toLowerCase().includes(q) ||
-            pop.muscleGroup.toLowerCase().includes(q)
-          );
-        }
-        return false;
-      });
+  const isTemplateMatch = (template: WorkoutTemplate, query: string) => {
+    if (template.name.toLowerCase().includes(query)) return true;
+    return template.exercises.some((ex) => {
+      const populated = typeof ex.exerciseId === "object" ? (ex.exerciseId as PopulatedExercise) : null;
+      return populated && (populated.name.toLowerCase().includes(query) || populated.muscleGroup.toLowerCase().includes(query));
     });
-  }, [tabList, search]);
+  };
+
+  const searchQuery = search.trim().toLowerCase();
+  const displayed = searchQuery ? tabList.filter((template) => isTemplateMatch(template, searchQuery)) : tabList;
 
   const handleEdit = (template: WorkoutTemplate) => {
     setSelectedTemplate(null);
@@ -189,11 +180,11 @@ function Templates() {
 
         {!isLoading && !isError && displayed.length > 0 && (
           <div className="flex flex-col gap-[10px]">
-            {displayed.map((t) => (
+            {displayed.map((template) => (
               <TemplateCard
-                key={t._id}
-                template={t}
-                onClick={() => setSelectedTemplate(t)}
+                key={template._id}
+                template={template}
+                onClick={() => setSelectedTemplate(template)}
               />
             ))}
           </div>

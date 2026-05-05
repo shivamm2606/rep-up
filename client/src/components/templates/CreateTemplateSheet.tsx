@@ -20,19 +20,13 @@ interface Props {
   editTemplate?: WorkoutTemplate;
 }
 
-
-function hydrateExercises(template: WorkoutTemplate): AddedExercise[] {
+function getExercisesFromTemplate(template: WorkoutTemplate): AddedExercise[] {
   return template.exercises
-    .filter((ex) => typeof ex.exerciseId === "object" && ex.exerciseId !== null)
+    .filter((ex) => typeof ex.exerciseId === "object")
     .map((ex) => {
       const populated = ex.exerciseId as PopulatedExercise;
       return {
-        exercise: {
-          _id: populated._id,
-          name: populated.name,
-          muscleGroup: populated.muscleGroup,
-          category: populated.category,
-        },
+        exercise: { _id: populated._id, name: populated.name, muscleGroup: populated.muscleGroup, category: populated.category, isCustom: false },
         targetSets: ex.targetSets ?? 3,
         notes: ex.notes ?? "",
       };
@@ -52,12 +46,11 @@ export function CreateTemplateSheet({ onClose, editTemplate }: Props) {
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
   const [expandedNotes, setExpandedNotes] = useState<number | null>(null);
-
-  // Pre-populate when editing
+  
   useEffect(() => {
     if (editTemplate) {
       setName(editTemplate.name);
-      setExercises(hydrateExercises(editTemplate));
+      setExercises(getExercisesFromTemplate(editTemplate));
     }
   }, [editTemplate]);
 
@@ -69,59 +62,34 @@ export function CreateTemplateSheet({ onClose, editTemplate }: Props) {
     setTimeout(onClose, 250);
   };
 
-  const handleAddExercises = (newExercises: Exercise[]) => {
-    const toAdd = newExercises.map((ex) => ({
-      exercise: ex,
-      targetSets: 3,
-      notes: "",
-    }));
-    setExercises([...exercises, ...toAdd]);
-  };
+  const updateExercise = (index: number, patch: Partial<AddedExercise>) =>
+    setExercises(exercises.map((item, i) => (i === index ? { ...item, ...patch } : item)));
 
-  const handleRemove = (index: number) => {
+  const handleAddExercises = (picked: Exercise[]) =>
+    setExercises([...exercises, ...picked.map((ex) => ({ exercise: ex, targetSets: 3, notes: "" }))]);
+
+  const handleRemoveExercise = (index: number) => {
     setExercises(exercises.filter((_, i) => i !== index));
     if (expandedNotes === index) setExpandedNotes(null);
   };
 
-  const handleSetsChange = (index: number, delta: number) => {
-    setExercises(
-      exercises.map((item, i) => {
-        if (i !== index) return item;
-        const next = item.targetSets + delta;
-        return { ...item, targetSets: Math.max(1, Math.min(10, next)) };
-      }),
-    );
-  };
-
-  const handleNotesChange = (index: number, value: string) => {
-    setExercises(
-      exercises.map((item, i) =>
-        i === index ? { ...item, notes: value } : item,
-      ),
-    );
-  };
-
-  const handleDragEnd = () => {
-    if (
-      dragIndex !== null &&
-      dragOverIndex !== null &&
-      dragIndex !== dragOverIndex
-    ) {
-      const updated = [...exercises];
-      const [moved] = updated.splice(dragIndex, 1);
-      updated.splice(dragOverIndex, 0, moved);
-      setExercises(updated);
+  const handleDragReorder = () => {
+    if (dragIndex != null && dragOverIndex != null && dragIndex !== dragOverIndex) {
+      const reordered = [...exercises];
+      const [moved] = reordered.splice(dragIndex, 1);
+      reordered.splice(dragOverIndex, 0, moved);
+      setExercises(reordered);
     }
     setDragIndex(null);
     setDragOverIndex(null);
   };
 
-  const buildPayload = () => ({
+  const getPayload = () => ({
     name: name.trim(),
-    exercises: exercises.map((item) => ({
-      exerciseId: item.exercise._id,
-      targetSets: item.targetSets,
-      ...(item.notes.trim() ? { notes: item.notes.trim() } : {}),
+    exercises: exercises.map(({ exercise, targetSets, notes }) => ({
+      exerciseId: exercise._id,
+      targetSets,
+      ...(notes.trim() && { notes: notes.trim() }),
     })),
   });
 
@@ -130,11 +98,11 @@ export function CreateTemplateSheet({ onClose, editTemplate }: Props) {
 
     if (isEditMode) {
       updateTemplate(
-        { templateId: editTemplate._id, data: buildPayload() },
+        { templateId: editTemplate._id, data: getPayload() },
         { onSuccess: handleClose },
       );
     } else {
-      createTemplate(buildPayload(), { onSuccess: handleClose });
+      createTemplate(getPayload(), { onSuccess: handleClose });
     }
   };
 
@@ -160,10 +128,7 @@ export function CreateTemplateSheet({ onClose, editTemplate }: Props) {
         {showPicker ? (
           <ExercisePicker
             alreadyAddedIds={exercises.map((e) => e.exercise._id)}
-            onAdd={(selected) => {
-              handleAddExercises(selected);
-              setShowPicker(false);
-            }}
+            onAdd={(picked) => { handleAddExercises(picked); setShowPicker(false); }}
             onBack={() => setShowPicker(false)}
           />
         ) : (
@@ -235,7 +200,7 @@ export function CreateTemplateSheet({ onClose, editTemplate }: Props) {
                           e.preventDefault();
                           setDragOverIndex(i);
                         }}
-                        onDragEnd={handleDragEnd}
+                        onDragEnd={handleDragReorder}
                         className={`flex items-center gap-2 py-[12px] px-[14px] rounded-[14px] bg-[#0f0f15] transition-all duration-100 ${
                           dragOverIndex === i && dragIndex !== i
                             ? "border-t-2 border-[#7b9dff]"
@@ -308,7 +273,7 @@ export function CreateTemplateSheet({ onClose, editTemplate }: Props) {
                         {/* Sets stepper */}
                         <div className="flex items-center gap-1 shrink-0">
                           <button
-                            onClick={() => handleSetsChange(i, -1)}
+                            onClick={() => updateExercise(i, { targetSets: Math.max(1, item.targetSets - 1) })}
                             className="w-7 h-7 rounded-[8px] bg-[#1a1a24] border border-[#24242e] flex items-center justify-center text-[#6b6b80] hover:text-[#f0f0f5] transition-colors"
                           >
                             <svg
@@ -329,7 +294,7 @@ export function CreateTemplateSheet({ onClose, editTemplate }: Props) {
                             {item.targetSets}
                           </span>
                           <button
-                            onClick={() => handleSetsChange(i, 1)}
+                            onClick={() => updateExercise(i, { targetSets: Math.min(10, item.targetSets + 1) })}
                             className="w-7 h-7 rounded-[8px] bg-[#1a1a24] border border-[#24242e] flex items-center justify-center text-[#6b6b80] hover:text-[#f0f0f5] transition-colors"
                           >
                             <svg
@@ -350,7 +315,7 @@ export function CreateTemplateSheet({ onClose, editTemplate }: Props) {
 
                         {/* Remove */}
                         <button
-                          onClick={() => handleRemove(i)}
+                          onClick={() => handleRemoveExercise(i)}
                           className="w-7 h-7 rounded-[8px] flex items-center justify-center text-[#44445a] hover:text-[#ef4444] transition-colors"
                         >
                           <svg
@@ -379,9 +344,7 @@ export function CreateTemplateSheet({ onClose, editTemplate }: Props) {
                           <input
                             type="text"
                             value={item.notes}
-                            onChange={(e) =>
-                              handleNotesChange(i, e.target.value)
-                            }
+                            onChange={(e) => updateExercise(i, { notes: e.target.value })}
                             placeholder="e.g. Slow eccentric, pause at bottom…"
                             maxLength={500}
                             className="w-full bg-[#13131a] border border-[#1e1e28] rounded-[10px] px-3 py-[8px] text-[12px] text-[#f0f0f5] placeholder-[#33334a] outline-none focus:border-[#2a2a38] transition-colors"
