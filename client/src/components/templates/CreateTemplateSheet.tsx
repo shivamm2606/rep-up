@@ -1,26 +1,65 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useCreateTemplate } from "../../hooks/workoutTemplate/useCreateTemplate";
+import { useUpdateTemplate } from "../../hooks/workoutTemplate/useUpdateTemplate";
 import { ExercisePicker } from "./ExercisePicker";
 import { getMuscleColor, formatMuscle } from "./templateUtils";
 import type { Exercise } from "../../hooks/exercises/useGetExercises";
+import type {
+  WorkoutTemplate,
+  PopulatedExercise,
+} from "../../types/workoutTemplate.types";
 
 interface AddedExercise {
   exercise: Exercise;
   targetSets: number;
+  notes: string;
 }
 
 interface Props {
   onClose: () => void;
+  editTemplate?: WorkoutTemplate;
 }
 
-export function CreateTemplateSheet({ onClose }: Props) {
-  const { mutate: createTemplate, isPending } = useCreateTemplate();
+
+function hydrateExercises(template: WorkoutTemplate): AddedExercise[] {
+  return template.exercises
+    .filter((ex) => typeof ex.exerciseId === "object" && ex.exerciseId !== null)
+    .map((ex) => {
+      const populated = ex.exerciseId as PopulatedExercise;
+      return {
+        exercise: {
+          _id: populated._id,
+          name: populated.name,
+          muscleGroup: populated.muscleGroup,
+          category: populated.category,
+        },
+        targetSets: ex.targetSets ?? 3,
+        notes: ex.notes ?? "",
+      };
+    });
+}
+
+export function CreateTemplateSheet({ onClose, editTemplate }: Props) {
+  const { mutate: createTemplate, isPending: isCreating } = useCreateTemplate();
+  const { mutate: updateTemplate, isPending: isUpdating } = useUpdateTemplate();
+  const isPending = isCreating || isUpdating;
+  const isEditMode = !!editTemplate;
+
   const [name, setName] = useState("");
   const [exercises, setExercises] = useState<AddedExercise[]>([]);
   const [showPicker, setShowPicker] = useState(false);
   const [closing, setClosing] = useState(false);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+  const [expandedNotes, setExpandedNotes] = useState<number | null>(null);
+
+  // Pre-populate when editing
+  useEffect(() => {
+    if (editTemplate) {
+      setName(editTemplate.name);
+      setExercises(hydrateExercises(editTemplate));
+    }
+  }, [editTemplate]);
 
   const canSave = name.trim().length > 0 && exercises.length > 0;
 
@@ -31,12 +70,17 @@ export function CreateTemplateSheet({ onClose }: Props) {
   };
 
   const handleAddExercises = (newExercises: Exercise[]) => {
-    const toAdd = newExercises.map((ex) => ({ exercise: ex, targetSets: 3 }));
+    const toAdd = newExercises.map((ex) => ({
+      exercise: ex,
+      targetSets: 3,
+      notes: "",
+    }));
     setExercises([...exercises, ...toAdd]);
   };
 
   const handleRemove = (index: number) => {
     setExercises(exercises.filter((_, i) => i !== index));
+    if (expandedNotes === index) setExpandedNotes(null);
   };
 
   const handleSetsChange = (index: number, delta: number) => {
@@ -46,6 +90,14 @@ export function CreateTemplateSheet({ onClose }: Props) {
         const next = item.targetSets + delta;
         return { ...item, targetSets: Math.max(1, Math.min(10, next)) };
       }),
+    );
+  };
+
+  const handleNotesChange = (index: number, value: string) => {
+    setExercises(
+      exercises.map((item, i) =>
+        i === index ? { ...item, notes: value } : item,
+      ),
     );
   };
 
@@ -64,18 +116,26 @@ export function CreateTemplateSheet({ onClose }: Props) {
     setDragOverIndex(null);
   };
 
+  const buildPayload = () => ({
+    name: name.trim(),
+    exercises: exercises.map((item) => ({
+      exerciseId: item.exercise._id,
+      targetSets: item.targetSets,
+      ...(item.notes.trim() ? { notes: item.notes.trim() } : {}),
+    })),
+  });
+
   const handleSave = () => {
     if (!canSave) return;
-    createTemplate(
-      {
-        name: name.trim(),
-        exercises: exercises.map((item) => ({
-          exerciseId: item.exercise._id,
-          targetSets: item.targetSets,
-        })),
-      },
-      { onSuccess: handleClose },
-    );
+
+    if (isEditMode) {
+      updateTemplate(
+        { templateId: editTemplate._id, data: buildPayload() },
+        { onSuccess: handleClose },
+      );
+    } else {
+      createTemplate(buildPayload(), { onSuccess: handleClose });
+    }
   };
 
   return (
@@ -112,10 +172,10 @@ export function CreateTemplateSheet({ onClose }: Props) {
             <div className="flex items-center justify-between px-1.5 pt-2.5 pb-4 shrink-0">
               <div>
                 <p className="text-[11px] font-bold text-[#44445a] tracking-[0.1em] uppercase mb-1.5">
-                  New
+                  {isEditMode ? "Edit" : "New"}
                 </p>
                 <h2 className="text-[24px] font-black text-[#f0f0f5] tracking-[-0.04em] leading-[1.1] m-0">
-                  Create Template
+                  {isEditMode ? "Edit Template" : "Create Template"}
                 </h2>
               </div>
               <button
@@ -164,119 +224,171 @@ export function CreateTemplateSheet({ onClose }: Props) {
               <div className="flex flex-col gap-[6px]">
                 {exercises.map((item, i) => {
                   const c = getMuscleColor(item.exercise.muscleGroup);
+                  const notesOpen = expandedNotes === i;
+
                   return (
-                    <div
-                      key={item.exercise._id}
-                      draggable
-                      onDragStart={() => setDragIndex(i)}
-                      onDragOver={(e) => {
-                        e.preventDefault();
-                        setDragOverIndex(i);
-                      }}
-                      onDragEnd={handleDragEnd}
-                      className={`flex items-center gap-2 py-[12px] px-[14px] rounded-[14px] bg-[#0f0f15] transition-all duration-100 ${
-                        dragOverIndex === i && dragIndex !== i
-                          ? "border-t-2 border-[#7b9dff]"
-                          : "border-t-2 border-transparent"
-                      } ${dragIndex === i ? "opacity-40" : ""}`}
-                    >
-                      {/* Drag handle */}
-                      <div className="shrink-0 cursor-grab active:cursor-grabbing touch-none py-1 px-0.5">
-                        <svg
-                          width="10"
-                          height="16"
-                          viewBox="0 0 10 16"
-                          fill="none"
-                        >
-                          <circle cx="2.5" cy="2.5" r="1.2" fill="#44445a" />
-                          <circle cx="7.5" cy="2.5" r="1.2" fill="#44445a" />
-                          <circle cx="2.5" cy="8" r="1.2" fill="#44445a" />
-                          <circle cx="7.5" cy="8" r="1.2" fill="#44445a" />
-                          <circle cx="2.5" cy="13.5" r="1.2" fill="#44445a" />
-                          <circle cx="7.5" cy="13.5" r="1.2" fill="#44445a" />
-                        </svg>
-                      </div>
-
-                      {/* Exercise info */}
-                      <div className="flex-1 min-w-0">
-                        <p className="text-[13px] font-bold text-[#e0e0ea] tracking-tight truncate">
-                          {item.exercise.name}
-                        </p>
-                        <span
-                          className="inline-block mt-1 text-[8.5px] font-bold tracking-[0.04em] uppercase px-[6px] py-[1.5px] rounded-[5px] border"
-                          style={{
-                            background: c.bg,
-                            color: c.text,
-                            borderColor: c.border,
-                          }}
-                        >
-                          {formatMuscle(item.exercise.muscleGroup)}
-                        </span>
-                      </div>
-
-                      {/* Sets stepper */}
-                      <div className="flex items-center gap-1 shrink-0">
-                        <button
-                          onClick={() => handleSetsChange(i, -1)}
-                          className="w-7 h-7 rounded-[8px] bg-[#1a1a24] border border-[#24242e] flex items-center justify-center text-[#6b6b80] hover:text-[#f0f0f5] transition-colors"
-                        >
-                          <svg
-                            width="10"
-                            height="10"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                          >
-                            <path
-                              d="M5 12h14"
-                              stroke="currentColor"
-                              strokeWidth="2.5"
-                              strokeLinecap="round"
-                            />
-                          </svg>
-                        </button>
-                        <span className="w-6 text-center text-[14px] font-black text-[#f0f0f5] tabular-nums">
-                          {item.targetSets}
-                        </span>
-                        <button
-                          onClick={() => handleSetsChange(i, 1)}
-                          className="w-7 h-7 rounded-[8px] bg-[#1a1a24] border border-[#24242e] flex items-center justify-center text-[#6b6b80] hover:text-[#f0f0f5] transition-colors"
-                        >
-                          <svg
-                            width="10"
-                            height="10"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                          >
-                            <path
-                              d="M12 5v14M5 12h14"
-                              stroke="currentColor"
-                              strokeWidth="2.5"
-                              strokeLinecap="round"
-                            />
-                          </svg>
-                        </button>
-                      </div>
-
-                      {/* Remove */}
-                      <button
-                        onClick={() => handleRemove(i)}
-                        className="w-7 h-7 rounded-[8px] flex items-center justify-center text-[#44445a] hover:text-[#ef4444] transition-colors"
+                    <div key={item.exercise._id}>
+                      <div
+                        draggable
+                        onDragStart={() => setDragIndex(i)}
+                        onDragOver={(e) => {
+                          e.preventDefault();
+                          setDragOverIndex(i);
+                        }}
+                        onDragEnd={handleDragEnd}
+                        className={`flex items-center gap-2 py-[12px] px-[14px] rounded-[14px] bg-[#0f0f15] transition-all duration-100 ${
+                          dragOverIndex === i && dragIndex !== i
+                            ? "border-t-2 border-[#7b9dff]"
+                            : "border-t-2 border-transparent"
+                        } ${dragIndex === i ? "opacity-40" : ""}`}
                       >
-                        <svg
-                          width="14"
-                          height="14"
-                          viewBox="0 0 24 24"
-                          fill="none"
+                        {/* Drag handle */}
+                        <div className="shrink-0 cursor-grab active:cursor-grabbing touch-none py-1 px-0.5">
+                          <svg
+                            width="10"
+                            height="16"
+                            viewBox="0 0 10 16"
+                            fill="none"
+                          >
+                            <circle cx="2.5" cy="2.5" r="1.2" fill="#44445a" />
+                            <circle cx="7.5" cy="2.5" r="1.2" fill="#44445a" />
+                            <circle cx="2.5" cy="8" r="1.2" fill="#44445a" />
+                            <circle cx="7.5" cy="8" r="1.2" fill="#44445a" />
+                            <circle cx="2.5" cy="13.5" r="1.2" fill="#44445a" />
+                            <circle cx="7.5" cy="13.5" r="1.2" fill="#44445a" />
+                          </svg>
+                        </div>
+
+                        {/* Exercise info */}
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[13px] font-bold text-[#e0e0ea] tracking-tight truncate">
+                            {item.exercise.name}
+                          </p>
+                          <div className="flex items-center gap-1.5 mt-1">
+                            <span
+                              className="inline-block text-[8.5px] font-bold tracking-[0.04em] uppercase px-[6px] py-[1.5px] rounded-[5px] border"
+                              style={{
+                                background: c.bg,
+                                color: c.text,
+                                borderColor: c.border,
+                              }}
+                            >
+                              {formatMuscle(item.exercise.muscleGroup)}
+                            </span>
+                            {/* Notes toggle */}
+                            <button
+                              onClick={() =>
+                                setExpandedNotes(notesOpen ? null : i)
+                              }
+                              className={`flex items-center gap-1 text-[10px] font-semibold transition-colors ${
+                                item.notes
+                                  ? "text-[#7b9dff]"
+                                  : "text-[#44445a] hover:text-[#6b6b80]"
+                              }`}
+                            >
+                              <svg
+                                width="10"
+                                height="10"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                              >
+                                <path
+                                  d="M12 20h9M16.376 3.622a2.121 2.121 0 113 3L7.5 18.5 3 20l1.5-4.5L16.376 3.622z"
+                                  stroke="currentColor"
+                                  strokeWidth="2"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                />
+                              </svg>
+                              {item.notes ? "Note" : "Add note"}
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Sets stepper */}
+                        <div className="flex items-center gap-1 shrink-0">
+                          <button
+                            onClick={() => handleSetsChange(i, -1)}
+                            className="w-7 h-7 rounded-[8px] bg-[#1a1a24] border border-[#24242e] flex items-center justify-center text-[#6b6b80] hover:text-[#f0f0f5] transition-colors"
+                          >
+                            <svg
+                              width="10"
+                              height="10"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                            >
+                              <path
+                                d="M5 12h14"
+                                stroke="currentColor"
+                                strokeWidth="2.5"
+                                strokeLinecap="round"
+                              />
+                            </svg>
+                          </button>
+                          <span className="w-6 text-center text-[14px] font-black text-[#f0f0f5] tabular-nums">
+                            {item.targetSets}
+                          </span>
+                          <button
+                            onClick={() => handleSetsChange(i, 1)}
+                            className="w-7 h-7 rounded-[8px] bg-[#1a1a24] border border-[#24242e] flex items-center justify-center text-[#6b6b80] hover:text-[#f0f0f5] transition-colors"
+                          >
+                            <svg
+                              width="10"
+                              height="10"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                            >
+                              <path
+                                d="M12 5v14M5 12h14"
+                                stroke="currentColor"
+                                strokeWidth="2.5"
+                                strokeLinecap="round"
+                              />
+                            </svg>
+                          </button>
+                        </div>
+
+                        {/* Remove */}
+                        <button
+                          onClick={() => handleRemove(i)}
+                          className="w-7 h-7 rounded-[8px] flex items-center justify-center text-[#44445a] hover:text-[#ef4444] transition-colors"
                         >
-                          <path
-                            d="M18 6L6 18M6 6l12 12"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
+                          <svg
+                            width="14"
+                            height="14"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                          >
+                            <path
+                              d="M18 6L6 18M6 6l12 12"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                          </svg>
+                        </button>
+                      </div>
+
+                      {/* Notes input — expanded */}
+                      {notesOpen && (
+                        <div
+                          className="mx-[14px] mt-1 mb-1"
+                          style={{ animation: "fadeSlideUp 0.15s ease-out" }}
+                        >
+                          <input
+                            type="text"
+                            value={item.notes}
+                            onChange={(e) =>
+                              handleNotesChange(i, e.target.value)
+                            }
+                            placeholder="e.g. Slow eccentric, pause at bottom…"
+                            maxLength={500}
+                            className="w-full bg-[#13131a] border border-[#1e1e28] rounded-[10px] px-3 py-[8px] text-[12px] text-[#f0f0f5] placeholder-[#33334a] outline-none focus:border-[#2a2a38] transition-colors"
+                            autoFocus
                           />
-                        </svg>
-                      </button>
+                        </div>
+                      )}
                     </div>
                   );
                 })}
@@ -314,7 +426,11 @@ export function CreateTemplateSheet({ onClose }: Props) {
                   }
                 `}
               >
-                {isPending ? "Saving…" : "Save Template"}
+                {isPending
+                  ? "Saving…"
+                  : isEditMode
+                    ? "Save Changes"
+                    : "Save Template"}
               </button>
             </div>
           </>

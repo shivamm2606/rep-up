@@ -1,21 +1,28 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCreateSession } from "../../hooks/sessions/useCreateSession";
+import { useDeleteTemplate } from "../../hooks/workoutTemplate/useDeleteTemplate";
 import { getMuscleColor, formatMuscle } from "./templateUtils";
 import type { WorkoutTemplate, PopulatedExercise } from "../../types/workoutTemplate.types";
 
 interface Props {
   template: WorkoutTemplate;
+  isOwner: boolean;
   onClose: () => void;
+  onEdit?: (template: WorkoutTemplate) => void;
 }
 
-export function TemplateDetailSheet({ template, onClose }: Props) {
+export function TemplateDetailSheet({ template, isOwner, onClose, onEdit }: Props) {
   const navigate = useNavigate();
   const { mutate: createSession, isPending } = useCreateSession();
+  const { mutate: deleteTemplate, isPending: isDeleting } = useDeleteTemplate();
   const [closing, setClosing] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+
+  const busy = isPending || isDeleting;
 
   const handleClose = () => {
-    if (isPending) return;
+    if (busy) return;
     setClosing(true);
     setTimeout(onClose, 250);
   };
@@ -30,6 +37,15 @@ export function TemplateDetailSheet({ template, onClose }: Props) {
         },
       },
     );
+  };
+
+  const handleDelete = () => {
+    deleteTemplate(template._id, {
+      onSuccess: () => {
+        setClosing(true);
+        setTimeout(onClose, 250);
+      },
+    });
   };
 
   return (
@@ -64,14 +80,43 @@ export function TemplateDetailSheet({ template, onClose }: Props) {
               {template.exercises.length} exercise{template.exercises.length !== 1 ? "s" : ""}
             </p>
           </div>
-          <button
-            onClick={handleClose}
-            className="w-9 h-9 rounded-[12px] bg-[#13131a] border border-[#1e1e28] flex items-center justify-center text-[#8b8b9a] hover:text-[#f0f0f5] transition-colors shrink-0"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-              <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </button>
+
+          <div className="flex items-center gap-1.5 shrink-0">
+            {/* Edit button — owner only */}
+            {isOwner && onEdit && (
+              <button
+                onClick={() => onEdit(template)}
+                className="w-9 h-9 rounded-[12px] bg-[#13131a] border border-[#1e1e28] flex items-center justify-center text-[#8b8b9a] hover:text-[#7b9dff] transition-colors"
+              >
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+                  <path
+                    d="M16.474 5.408l2.118 2.118m-.756-3.982L12.109 9.27a2.118 2.118 0 00-.58 1.082L11 13l2.648-.53a2.118 2.118 0 001.082-.58l5.727-5.727a1.853 1.853 0 10-2.621-2.621z"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                  <path
+                    d="M19 15v3a2 2 0 01-2 2H6a2 2 0 01-2-2V7a2 2 0 012-2h3"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </button>
+            )}
+
+            {/* Close button */}
+            <button
+              onClick={handleClose}
+              className="w-9 h-9 rounded-[12px] bg-[#13131a] border border-[#1e1e28] flex items-center justify-center text-[#8b8b9a] hover:text-[#f0f0f5] transition-colors"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </button>
+          </div>
         </div>
 
         {/* Exercise List */}
@@ -129,22 +174,71 @@ export function TemplateDetailSheet({ template, onClose }: Props) {
           </div>
         </div>
 
-        {/* Start Workout Button */}
-        <div className="shrink-0 pt-5 pb-2">
-          <button
-            onClick={handleStart}
-            disabled={isPending}
-            className={`
-              w-full py-[15px] rounded-[14px] text-[15px] font-extrabold tracking-tight
-              transition-all duration-150
-              ${isPending
-                ? "bg-[#4ade80]/40 text-[#0b0b10]/60 cursor-not-allowed"
-                : "bg-[#4ade80] text-[#0b0b10] hover:bg-[#5eebb0] active:scale-[0.98]"
-              }
-            `}
-          >
-            {isPending ? "Starting…" : "Start Workout"}
-          </button>
+        {/* Bottom Actions */}
+        <div className="shrink-0 pt-5 pb-2 flex flex-col gap-2.5">
+          {/* Delete confirmation */}
+          {isOwner && confirmDelete && (
+            <div
+              className="flex items-center gap-2 p-3 rounded-[14px] bg-[rgba(239,68,68,0.06)] border border-[rgba(239,68,68,0.15)]"
+              style={{ animation: "fadeSlideUp 0.2s ease-out" }}
+            >
+              <p className="flex-1 text-[12px] font-bold text-[#ef4444]">
+                Delete this template?
+              </p>
+              <button
+                onClick={() => setConfirmDelete(false)}
+                disabled={isDeleting}
+                className="px-3 py-[7px] rounded-[10px] text-[12px] font-bold text-[#8b8b9a] bg-[#1a1a24] border border-[#24242e] hover:text-[#f0f0f5] transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDelete}
+                disabled={isDeleting}
+                className="px-3 py-[7px] rounded-[10px] text-[12px] font-bold text-white bg-[#ef4444] hover:bg-[#dc2626] transition-colors"
+              >
+                {isDeleting ? "Deleting…" : "Delete"}
+              </button>
+            </div>
+          )}
+
+          {!confirmDelete && (
+            <div className="flex gap-2.5" style={{ animation: "fadeSlideUp 0.2s ease-out" }}>
+              {/* Delete button — owner only */}
+              {isOwner && (
+                <button
+                  onClick={() => setConfirmDelete(true)}
+                  className="w-[50px] shrink-0 py-[15px] rounded-[14px] flex items-center justify-center bg-[rgba(239,68,68,0.08)] border border-[rgba(239,68,68,0.18)] text-[#ef4444] hover:bg-[rgba(239,68,68,0.14)] transition-all duration-150 active:scale-[0.96]"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                    <path
+                      d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14z"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </button>
+              )}
+
+              {/* Start Workout Button */}
+              <button
+                onClick={handleStart}
+                disabled={busy}
+                className={`
+                  flex-1 py-[15px] rounded-[14px] text-[15px] font-extrabold tracking-tight
+                  transition-all duration-150
+                  ${busy
+                    ? "bg-[#4ade80]/40 text-[#0b0b10]/60 cursor-not-allowed"
+                    : "bg-[#4ade80] text-[#0b0b10] hover:bg-[#5eebb0] active:scale-[0.98]"
+                  }
+                `}
+              >
+                {isPending ? "Starting…" : "Start Workout"}
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>

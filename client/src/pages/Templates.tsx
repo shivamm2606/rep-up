@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useGetTemplates } from "../hooks/workoutTemplate/useGetTemplates";
 import { useCurrentUser } from "../hooks/user/useCurrentUser";
 import { TemplateCard } from "../components/templates/TemplateCard";
 import { TemplateDetailSheet } from "../components/templates/TemplateDetailSheet";
 import { CreateTemplateSheet } from "../components/templates/CreateTemplateSheet";
-import type { WorkoutTemplate } from "../types/workoutTemplate.types";
+import type { WorkoutTemplate, PopulatedExercise } from "../types/workoutTemplate.types";
 
 type Tab = "default" | "mine";
 
@@ -14,11 +14,38 @@ function Templates() {
   const [activeTab, setActiveTab] = useState<Tab>("default");
   const [selectedTemplate, setSelectedTemplate] = useState<WorkoutTemplate | null>(null);
   const [showCreate, setShowCreate] = useState(false);
+  const [editTemplate, setEditTemplate] = useState<WorkoutTemplate | null>(null);
+  const [search, setSearch] = useState("");
 
   const defaultTemplates = (templates ?? []).filter((t) => t.userId !== user?._id);
   const myTemplates = (templates ?? []).filter((t) => t.userId === user?._id);
 
-  const displayed = activeTab === "default" ? defaultTemplates : myTemplates;
+  const tabList = activeTab === "default" ? defaultTemplates : myTemplates;
+
+  const displayed = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return tabList;
+    return tabList.filter((t) => {
+      // match on template name
+      if (t.name.toLowerCase().includes(q)) return true;
+      // match on any exercise name or muscle group
+      return t.exercises.some((ex) => {
+        if (typeof ex.exerciseId === "object" && ex.exerciseId !== null) {
+          const pop = ex.exerciseId as PopulatedExercise;
+          return (
+            pop.name.toLowerCase().includes(q) ||
+            pop.muscleGroup.toLowerCase().includes(q)
+          );
+        }
+        return false;
+      });
+    });
+  }, [tabList, search]);
+
+  const handleEdit = (template: WorkoutTemplate) => {
+    setSelectedTemplate(null);
+    setTimeout(() => setEditTemplate(template), 280);
+  };
 
   return (
     <div className="bg-[#0b0b10] bg-[radial-gradient(140%_90%_at_50%_0%,_rgba(70,80,120,0.16),_rgba(11,11,16,0)_55%),linear-gradient(180deg,_rgba(12,12,18,1)_0%,_rgba(10,10,16,1)_100%)] text-[#f4f4f6] min-h-screen pb-[82px]">
@@ -69,6 +96,33 @@ function Templates() {
         </div>
       </div>
 
+      {/* Search */}
+      <div className="px-5 pt-3">
+        <div className="relative">
+          <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" width="14" height="14" viewBox="0 0 24 24" fill="none">
+            <circle cx="11" cy="11" r="7" stroke="#44445a" strokeWidth="2" />
+            <path d="M20 20l-4-4" stroke="#44445a" strokeWidth="2" strokeLinecap="round" />
+          </svg>
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search by name, exercise, or muscle…"
+            className="w-full bg-[#13131a] border border-[#1e1e28] rounded-[12px] pl-10 pr-4 py-[10px] text-[13px] text-[#f0f0f5] placeholder-[#44445a] outline-none focus:border-[#2a2a38] transition-colors"
+          />
+          {search && (
+            <button
+              onClick={() => setSearch("")}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#44445a] hover:text-[#8b8b9a] transition-colors"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </button>
+          )}
+        </div>
+      </div>
+
       {/* Content */}
       <div className="px-5 pt-4">
         {isLoading && (
@@ -86,33 +140,50 @@ function Templates() {
 
         {!isLoading && !isError && displayed.length === 0 && (
           <div className="flex flex-col items-center justify-center py-20 gap-3">
-            {activeTab === "mine" ? (
-              <button
-                onClick={() => setShowCreate(true)}
-                className="w-14 h-14 rounded-[18px] bg-[#13131a] border border-[#1e1e28] flex items-center justify-center mb-1 hover:bg-[#1a1a24] hover:border-[#2a2a38] transition-all duration-150 active:scale-[0.95]"
-              >
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-                  <path d="M12 5v14M5 12h14" stroke="#7b9dff" strokeWidth="1.8" strokeLinecap="round" />
-                </svg>
-              </button>
+            {search ? (
+              <>
+                <div className="w-14 h-14 rounded-[18px] bg-[#13131a] border border-[#1e1e28] flex items-center justify-center mb-1">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                    <circle cx="11" cy="11" r="7" stroke="#44445a" strokeWidth="1.8" />
+                    <path d="M20 20l-4-4" stroke="#44445a" strokeWidth="1.8" strokeLinecap="round" />
+                  </svg>
+                </div>
+                <p className="text-[15px] font-bold text-[#f0f0f5]">No results</p>
+                <p className="text-[12px] text-[#55556a] text-center max-w-[220px]">
+                  No templates matching "{search}"
+                </p>
+              </>
+            ) : activeTab === "mine" ? (
+              <>
+                <button
+                  onClick={() => setShowCreate(true)}
+                  className="w-14 h-14 rounded-[18px] bg-[#13131a] border border-[#1e1e28] flex items-center justify-center mb-1 hover:bg-[#1a1a24] hover:border-[#2a2a38] transition-all duration-150 active:scale-[0.95]"
+                >
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 5v14M5 12h14" stroke="#7b9dff" strokeWidth="1.8" strokeLinecap="round" />
+                  </svg>
+                </button>
+                <p className="text-[15px] font-bold text-[#f0f0f5]">No custom templates yet</p>
+                <p className="text-[12px] text-[#55556a] text-center max-w-[220px]">
+                  Tap the + to create your first template
+                </p>
+              </>
             ) : (
-              <div className="w-14 h-14 rounded-[18px] bg-[#13131a] border border-[#1e1e28] flex items-center justify-center mb-1">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-                  <rect x="3" y="3" width="8" height="8" rx="2" stroke="#44445a" strokeWidth="1.8" />
-                  <rect x="13" y="3" width="8" height="8" rx="2" stroke="#44445a" strokeWidth="1.8" />
-                  <rect x="3" y="13" width="8" height="8" rx="2" stroke="#44445a" strokeWidth="1.8" />
-                  <rect x="13" y="13" width="8" height="8" rx="2" stroke="#44445a" strokeWidth="1.8" />
-                </svg>
-              </div>
+              <>
+                <div className="w-14 h-14 rounded-[18px] bg-[#13131a] border border-[#1e1e28] flex items-center justify-center mb-1">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                    <rect x="3" y="3" width="8" height="8" rx="2" stroke="#44445a" strokeWidth="1.8" />
+                    <rect x="13" y="3" width="8" height="8" rx="2" stroke="#44445a" strokeWidth="1.8" />
+                    <rect x="3" y="13" width="8" height="8" rx="2" stroke="#44445a" strokeWidth="1.8" />
+                    <rect x="13" y="13" width="8" height="8" rx="2" stroke="#44445a" strokeWidth="1.8" />
+                  </svg>
+                </div>
+                <p className="text-[15px] font-bold text-[#f0f0f5]">No default templates</p>
+                <p className="text-[12px] text-[#55556a] text-center max-w-[220px]">
+                  Default templates will appear here
+                </p>
+              </>
             )}
-            <p className="text-[15px] font-bold text-[#f0f0f5]">
-              {activeTab === "mine" ? "No custom templates yet" : "No default templates"}
-            </p>
-            <p className="text-[12px] text-[#55556a] text-center max-w-[220px]">
-              {activeTab === "mine"
-                ? "Tap the + to create your first template"
-                : "Default templates will appear here"}
-            </p>
           </div>
         )}
 
@@ -145,13 +216,23 @@ function Templates() {
       {selectedTemplate && (
         <TemplateDetailSheet
           template={selectedTemplate}
+          isOwner={selectedTemplate.userId === user?._id}
           onClose={() => setSelectedTemplate(null)}
+          onEdit={handleEdit}
         />
       )}
 
       {/* Create Sheet */}
       {showCreate && (
         <CreateTemplateSheet onClose={() => setShowCreate(false)} />
+      )}
+
+      {/* Edit Sheet */}
+      {editTemplate && (
+        <CreateTemplateSheet
+          editTemplate={editTemplate}
+          onClose={() => setEditTemplate(null)}
+        />
       )}
     </div>
   );

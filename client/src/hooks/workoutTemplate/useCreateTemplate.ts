@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "../../lib/axios";
+import { toast } from "sonner";
 
 interface CreateTemplatePayload {
   name: string;
@@ -18,6 +19,10 @@ export const useCreateTemplate = () => {
       api.post("/workout-templates", data).then((r) => r.data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["templates"] });
+      toast.success("Template created");
+    },
+    onError: () => {
+      toast.error("Failed to create template");
     },
   });
 };
