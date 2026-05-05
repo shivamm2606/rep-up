@@ -133,13 +133,13 @@ function Register() {
       <AuthHeader
         icon={
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-            <path d="M12 12a5 5 0 100-10 5 5 0 000 10z" stroke="#47b8ff" strokeWidth="1.8" />
-            <path d="M3 21c0-4 4-7 9-7s9 3 9 7" stroke="#47b8ff" strokeWidth="1.8" strokeLinecap="round" />
-            <path d="M19 8v4M17 10h4" stroke="#47b8ff" strokeWidth="1.8" strokeLinecap="round" />
+            <path d="M12 12a5 5 0 100-10 5 5 0 000 10z" stroke="#3da1d4" strokeWidth="1.8" />
+            <path d="M3 21c0-4 4-7 9-7s9 3 9 7" stroke="#3da1d4" strokeWidth="1.8" strokeLinecap="round" />
+            <path d="M19 8v4M17 10h4" stroke="#3da1d4" strokeWidth="1.8" strokeLinecap="round" />
           </svg>
         }
         subtitle="Get started"
-        title={<>Build your<br /><span className="text-[#47b8ff]">best self.</span></>}
+        title={<>Build your<br /><span className="text-[#3da1d4]">best self.</span></>}
         description="Track workouts, hit PRs, stay consistent."
       />
 
@@ -178,7 +178,7 @@ function Register() {
           onClick={() => setTermsAccepted((t) => !t)}
           className={`w-5 h-5 rounded-[6px] border flex items-center justify-center shrink-0 mt-[1px] transition-all duration-150 ${
             termsAccepted
-              ? "bg-[#47b8ff] border-[#47b8ff]"
+              ? "bg-[#3da1d4] border-[#3da1d4]"
               : "bg-[#111116] border-[#1e1e28] group-hover:border-[#2a2a38]"
           }`}
         >
@@ -190,9 +190,9 @@ function Register() {
         </div>
         <p className="text-[12px] text-[#6b6b80] leading-relaxed">
           I agree to the{" "}
-          <span className="text-[#47b8ff] font-semibold">Terms & Conditions</span>{" "}
+          <span className="text-[#3da1d4] font-semibold">Terms & Conditions</span>{" "}
           and{" "}
-          <span className="text-[#47b8ff] font-semibold">Privacy Policy</span>
+          <span className="text-[#3da1d4] font-semibold">Privacy Policy</span>
         </p>
       </label>
 
@@ -209,7 +209,7 @@ function Register() {
         <button
           type="button"
           onClick={() => navigate("/login")}
-          className="text-[#47b8ff] font-bold hover:text-[#6fc8ff] transition-colors"
+          className="text-[#3da1d4] font-bold hover:text-[#4db5e6] transition-colors"
         >
           Log in
         </button>

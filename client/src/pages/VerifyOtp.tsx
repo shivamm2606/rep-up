@@ -18,18 +18,18 @@ const MailCheckIcon = () => (
       width="20"
       height="16"
       rx="3"
-      stroke="#47b8ff"
+      stroke="#3da1d4"
       strokeWidth="1.8"
     />
     <path
       d="M3 9l10 7 10-7"
-      stroke="#47b8ff"
+      stroke="#3da1d4"
       strokeWidth="1.8"
       strokeLinecap="round"
     />
     <path
       d="M17 17l2 2 4-4"
-      stroke="#47b8ff"
+      stroke="#3da1d4"
       strokeWidth="1.8"
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -149,7 +149,7 @@ function VerifyOtp() {
           <>
             Check your
             <br />
-            <span className="text-[#47b8ff]">inbox.</span>
+            <span className="text-[#3da1d4]">inbox.</span>
           </>
         }
         description={
@@ -194,7 +194,7 @@ function VerifyOtp() {
               }
             `}
             placeholder="·"
-            style={{ caretColor: "#47b8ff" }}
+            style={{ caretColor: "#3da1d4" }}
           />
         ))}
       </div>
@@ -203,7 +203,7 @@ function VerifyOtp() {
         {timer > 0 ? (
           <p className="text-[13px] text-[#44445a]">
             Resend code in{" "}
-            <span className="text-[#47b8ff] font-bold tabular-nums">
+            <span className="text-[#3da1d4] font-bold tabular-nums">
               0:{String(timer).padStart(2, "0")}
             </span>
           </p>
@@ -212,7 +212,7 @@ function VerifyOtp() {
             type="button"
             onClick={handleResend}
             disabled={isResending}
-            className="text-[13px] font-bold text-[#47b8ff] hover:text-[#6fc8ff] disabled:text-[#2a4a6a] transition-colors"
+            className="text-[13px] font-bold text-[#3da1d4] hover:text-[#4db5e6] disabled:text-[#2a4a6a] transition-colors"
           >
             {isResending ? "Sending..." : "Resend code"}
           </button>
@@ -231,12 +231,12 @@ function VerifyOtp() {
             <circle cx="12" cy="12" r="10" stroke="#2a4a6a" strokeWidth="2.5" />
             <path
               d="M12 2a10 10 0 0 1 10 10"
-              stroke="#47b8ff"
+              stroke="#3da1d4"
               strokeWidth="2.5"
               strokeLinecap="round"
             />
           </svg>
-          <span className="text-[13px] font-bold text-[#47b8ff]">
+          <span className="text-[13px] font-bold text-[#3da1d4]">
             Verifying...
           </span>
         </div>
@@ -247,7 +247,7 @@ function VerifyOtp() {
         <button
           type="button"
           onClick={() => navigate("/login")}
-          className="text-[#47b8ff] font-bold hover:text-[#6fc8ff] transition-colors"
+          className="text-[#3da1d4] font-bold hover:text-[#4db5e6] transition-colors"
         >
           Sign in
         </button>

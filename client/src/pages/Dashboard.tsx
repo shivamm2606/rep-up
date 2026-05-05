@@ -63,7 +63,7 @@ function Dashboard() {
   const { data: sessions } = useWorkoutSessions();
   const { data: bwLogs } = useBodyweightLog();
 
-  const latestBW = bwLogs?.logs?.[0];
+  const latestBW = bwLogs?.entries?.[0];
 
   const [dailyQuote] = useState(getDailyQuote);
   const [showWorkoutModal, setShowWorkoutModal] = useState(false);
@@ -181,7 +181,7 @@ function Dashboard() {
             <StatCard
               label="Bodyweight"
               value={latestBW?.weight ?? "-"}
-              unit="kg"
+              unit={latestBW?.unit ?? "kg"}
               subtitle={bwSubtitle}
             />
           </div>
@@ -236,7 +236,7 @@ function Dashboard() {
             />
             <QuickActionCard
               label="Log Bodyweight"
-              onClick={() => navigate("/bodyweight/log")}
+              onClick={() => navigate("/bodyweight")}
               icon={
                 <svg width="15" height="15" viewBox="0 0 22 22" fill="none">
                   <rect

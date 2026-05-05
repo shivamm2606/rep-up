@@ -54,11 +54,11 @@ function Login() {
       <AuthHeader
         icon={
           <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
-            <path d="M2 13h3M21 13h3M6 8v10M20 8v10M3 10v6M23 10v6M6 13h14" stroke="#47b8ff" strokeWidth="1.8" strokeLinecap="round" />
+            <path d="M2 13h3M21 13h3M6 8v10M20 8v10M3 10v6M23 10v6M6 13h14" stroke="#3da1d4" strokeWidth="1.8" strokeLinecap="round" />
           </svg>
         }
         subtitle="Welcome back"
-        title={<>Log back<br /><span className="text-[#47b8ff]">into RepUp.</span></>}
+        title={<>Log back<br /><span className="text-[#3da1d4]">into RepUp.</span></>}
         description="Your streaks, PRs, and progress are waiting."
       />
 
@@ -96,7 +96,7 @@ function Login() {
         <button
           type="button"
           onClick={() => navigate("/forgot-password")}
-          className="text-[12px] font-semibold text-[#44445a] hover:text-[#47b8ff] transition-colors"
+          className="text-[12px] font-semibold text-[#44445a] hover:text-[#3da1d4] transition-colors"
         >
           Forgot password?
         </button>
@@ -115,7 +115,7 @@ function Login() {
         <button
           type="button"
           onClick={() => navigate("/register")}
-          className="text-[#47b8ff] font-bold hover:text-[#6fc8ff] transition-colors"
+          className="text-[#3da1d4] font-bold hover:text-[#4db5e6] transition-colors"
         >
           Sign up
         </button>
