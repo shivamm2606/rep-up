@@ -12,9 +12,15 @@ export const useLogin = () => {
       api.post("/auth/login", data).then((r) => r.data),
 
     onSuccess: (data) => {
-      queryClient.setQueryData(["currentUser"], data.data.user);
-      useAuthStore.getState().setAuth(data.data.user);
-      navigate("/dashboard");
+      const user = data.data;
+      queryClient.setQueryData(["currentUser"], user);
+      useAuthStore.getState().setAuth(user);
+
+      if (!user.userInfo?.gender) {
+        navigate("/onboarding", { replace: true });
+      } else {
+        navigate("/dashboard", { replace: true });
+      }
     },
   });
 };

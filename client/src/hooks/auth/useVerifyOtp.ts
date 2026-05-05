@@ -13,7 +13,7 @@ export const useVerifyOtp = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["currentUser"] });
 
-      navigate("/login");
+      navigate("/verified");
     },
   });
 };
