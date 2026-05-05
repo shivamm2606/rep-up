@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useCreateTemplate } from "../../hooks/workoutTemplate/useCreateTemplate";
 import { useUpdateTemplate } from "../../hooks/workoutTemplate/useUpdateTemplate";
 import { ExercisePicker } from "./ExercisePicker";
@@ -39,20 +39,15 @@ export function CreateTemplateSheet({ onClose, editTemplate }: Props) {
   const isPending = isCreating || isUpdating;
   const isEditMode = !!editTemplate;
 
-  const [name, setName] = useState("");
-  const [exercises, setExercises] = useState<AddedExercise[]>([]);
+  const [name, setName] = useState(() => editTemplate?.name ?? "");
+  const [exercises, setExercises] = useState<AddedExercise[]>(() =>
+    editTemplate ? getExercisesFromTemplate(editTemplate) : [],
+  );
   const [showPicker, setShowPicker] = useState(false);
   const [closing, setClosing] = useState(false);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
   const [expandedNotes, setExpandedNotes] = useState<number | null>(null);
-  
-  useEffect(() => {
-    if (editTemplate) {
-      setName(editTemplate.name);
-      setExercises(getExercisesFromTemplate(editTemplate));
-    }
-  }, [editTemplate]);
 
   const canSave = name.trim().length > 0 && exercises.length > 0;
 
