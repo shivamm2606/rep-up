@@ -92,6 +92,7 @@ class MongoAuthService implements IAuthService {
         name: user.name,
         username: user.username,
         email: user.email,
+        userInfo: user.userInfo,
       },
       accessToken,
       refreshToken,

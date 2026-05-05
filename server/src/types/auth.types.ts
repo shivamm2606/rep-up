@@ -1,4 +1,5 @@
 import type { RegisterDto, LoginDto } from "../validator/auth.validator.js";
+import type { IUserInfo } from "./user.types.js";
 
 export type { RegisterDto, LoginDto };
 
@@ -20,8 +21,12 @@ export interface RegisterResut {
   email: string;
 }
 
+export interface LoginUser extends RegisterResut {
+  userInfo?: IUserInfo;
+}
+
 export interface LoginResult {
-  user: RegisterResut;
+  user: LoginUser;
   accessToken: string;
   refreshToken: string;
 }
