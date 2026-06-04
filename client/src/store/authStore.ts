@@ -16,17 +16,6 @@ interface AuthState {
 // Read tokens from localStorage
 function getStoredTokens() {
   try {
-    // demo account clear after refresh/browser close 
-    if (
-      localStorage.getItem("demoSession") &&
-      !sessionStorage.getItem("demoSession")
-    ) {
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("refreshToken");
-      localStorage.removeItem("demoSession");
-      return { accessToken: null, refreshToken: null };
-    }
-
     return {
       accessToken: localStorage.getItem("accessToken"),
       refreshToken: localStorage.getItem("refreshToken"),

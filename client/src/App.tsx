@@ -30,17 +30,16 @@ function RootRedirect() {
 function App() {
   const setAuth = useAuthStore((state) => state.setAuth);
   const setLoading = useAuthStore((state) => state.setLoading);
+  const clearAuth = useAuthStore((state) => state.clearAuth);
 
   useEffect(() => {
-    // If a demo session expired (browser closed), skip profile fetch
+    // If a demo session expired (tab/browser closed), clear everything
     if (
       localStorage.getItem("demoSession") &&
       !sessionStorage.getItem("demoSession")
     ) {
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("refreshToken");
       localStorage.removeItem("demoSession");
-      setLoading(false);
+      clearAuth();
       return;
     }
 
@@ -55,7 +54,7 @@ function App() {
         console.log("not logged in:", err);
         setLoading(false);
       });
-  }, [setAuth, setLoading]);
+  }, [setAuth, setLoading, clearAuth]);
 
   return (
     <Routes>
