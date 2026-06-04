@@ -81,6 +81,8 @@ function DesktopView() {
       const res = await api.post("/auth/demo");
       const user = res.data.data;
       useAuthStore.getState().setAuth(user, user.accessToken, user.refreshToken);
+      sessionStorage.setItem("demoSession", "true");
+      localStorage.setItem("demoSession", "true");
       navigate("/dashboard", { replace: true });
     } catch {
       alert("Demo account not available. Please try again later.");
