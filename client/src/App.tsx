@@ -32,6 +32,18 @@ function App() {
   const setLoading = useAuthStore((state) => state.setLoading);
 
   useEffect(() => {
+    // If a demo session expired (browser closed), skip profile fetch
+    if (
+      localStorage.getItem("demoSession") &&
+      !sessionStorage.getItem("demoSession")
+    ) {
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+      localStorage.removeItem("demoSession");
+      setLoading(false);
+      return;
+    }
+
     api
       .get("/user/profile")
       .then((response) => {
