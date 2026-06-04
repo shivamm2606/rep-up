@@ -95,6 +95,22 @@ h6 {
   animation: fadeIn 0.15s ease-out;
 }
 
+/* Desktop phone frame */
+@keyframes shellEntrance {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.desktop-shell-entrance {
+  animation: shellEntrance 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
 /* Subtle scrollbar for dark sheets */
 .sheet-panel::-webkit-scrollbar {
   width: 4px;
@@ -119,4 +135,18 @@ h6 {
 /* Disable double-tap and pinch zoom for PWA native feel */
 html {
   touch-action: manipulation;
+}
+
+/* Desktop phone frame: make pages fill the phone screen, not the viewport */
+.desktop-phone-screen > div {
+  min-height: 100% !important;
+}
+
+/* Hide scrollbar inside the phone frame */
+.desktop-phone-screen {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.desktop-phone-screen::-webkit-scrollbar {
+  display: none;
 }

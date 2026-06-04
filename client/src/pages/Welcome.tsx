@@ -1,6 +1,8 @@
 import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import QRCode from "qrcode";
+import api from "../lib/axios";
+import useAuthStore from "../store/authStore";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -67,9 +69,25 @@ function useStandalonePwa() {
 }
 
 function DesktopView() {
+  const navigate = useNavigate();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { canInstall, install, installed } = useInstallPrompt();
   const appUrl = window.location.origin;
+  const [demoLoading, setDemoLoading] = useState(false);
+
+  const handleDemoLogin = async () => {
+    setDemoLoading(true);
+    try {
+      const res = await api.post("/auth/demo");
+      const user = res.data.data;
+      useAuthStore.getState().setAuth(user, user.accessToken, user.refreshToken);
+      navigate("/dashboard", { replace: true });
+    } catch {
+      alert("Demo account not available. Please try again later.");
+    } finally {
+      setDemoLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (canvasRef.current) {
@@ -186,17 +204,26 @@ function DesktopView() {
               Rep<span className="text-[#3da1d4]">Up</span>
             </span>
           </a>
-          <a
-            href="https://github.com/shivamm2606/rep-up"
-            target="_blank"
-            rel="noreferrer"
-            className="flex items-center gap-2 text-white no-underline text-sm opacity-60 transition-opacity duration-200 hover:opacity-100"
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z" />
-            </svg>
-            GitHub
-          </a>
+          <div className="flex items-center gap-4">
+            <button
+              onClick={handleDemoLogin}
+              disabled={demoLoading}
+              className="hidden sm:inline-flex rounded-full bg-[#3da1d4] px-5 py-2 text-[0.8rem] font-bold text-white shadow-[0_0_20px_rgba(71,184,255,0.15)] transition-all duration-200 hover:bg-[#4db5e6] hover:shadow-[0_0_28px_rgba(71,184,255,0.25)] cursor-pointer border-none disabled:opacity-60 disabled:cursor-wait"
+            >
+              {demoLoading ? "Loading…" : "Try the App →"}
+            </button>
+            <a
+              href="https://github.com/shivamm2606/rep-up"
+              target="_blank"
+              rel="noreferrer"
+              className="flex items-center gap-2 text-white no-underline text-sm opacity-60 transition-opacity duration-200 hover:opacity-100"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z" />
+              </svg>
+              GitHub
+            </a>
+          </div>
         </nav>
 
         {/* Hero */}
@@ -216,11 +243,20 @@ function DesktopView() {
               GET STRONGER.
             </h1>
 
-            <p className="text-[rgba(255,255,255,0.55)] text-[1rem] leading-[1.7] max-w-[42ch] mb-0 sm:mb-8 sm:text-[1.1rem] lg:mb-12">
+            <p className="text-[rgba(255,255,255,0.55)] text-[1rem] leading-[1.7] max-w-[42ch] mb-6 sm:mb-8 sm:text-[1.1rem] lg:mb-10">
               RepUp is a mobile-first gym tracker built for lifters. Log
               workouts, monitor progress, and hit your goals - one session at a
               time.
             </p>
+
+            {/* CTA button for desktop users / recruiters */}
+            <button
+              onClick={handleDemoLogin}
+              disabled={demoLoading}
+              className="hidden sm:inline-flex rounded-full bg-[#3da1d4] px-7 py-3.5 text-[0.9rem] font-bold text-white shadow-[0_0_32px_rgba(71,184,255,0.2)] transition-all duration-200 hover:bg-[#4db5e6] hover:shadow-[0_0_40px_rgba(71,184,255,0.3)] hover:-translate-y-0.5 cursor-pointer border-none disabled:opacity-60 disabled:cursor-wait mb-8 lg:mb-12"
+            >
+              {demoLoading ? "Loading…" : "Try the App →"}
+            </button>
 
             {canInstall && !installed && (
               <button

@@ -9,6 +9,7 @@ import Register from "./pages/Register";
 import VerifyOtp from "./pages/VerifyOtp";
 import Verified from "./pages/Verified";
 import MainLayout from "./layouts/MainLayout";
+import DesktopPreview from "./layouts/DesktopPreview";
 import Welcome from "./pages/Welcome";
 import Onboarding from "./pages/Onboarding";
 import Templates from "./pages/Templates";
@@ -17,7 +18,6 @@ import Bodyweight from "./pages/Bodyweight";
 import ActiveWorkout from "./pages/ActiveWorkout";
 import WorkoutComplete from "./pages/WorkoutComplete";
 import History from "./pages/History";
-import { Toaster } from "sonner";
 
 function RootRedirect() {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
@@ -46,27 +46,13 @@ function App() {
   }, [setAuth, setLoading]);
 
   return (
-    <>
-      <Toaster
-        position="bottom-center"
-        theme="dark"
-        style={{ bottom: "82px" }}
-        toastOptions={{
-          style: {
-            background: "#16161e",
-            border: "1px solid #24242e",
-            color: "#f0f0f5",
-            fontSize: "13px",
-            fontWeight: 600,
-            borderRadius: "14px",
-            padding: "12px 16px",
-            maxWidth: "380px",
-          },
-        }}
-      />
-      <Routes>
-        <Route path="/" element={<RootRedirect />} />
-        <Route path="/welcome" element={<Welcome />} />
+    <Routes>
+      <Route path="/" element={<RootRedirect />} />
+      {/* Welcome page */}
+      <Route path="/welcome" element={<Welcome />} />
+
+      {/* All other routes */}
+      <Route element={<DesktopPreview />}>
         <Route path="/login" element={<Login />} />
         <Route path="/verify-otp" element={<VerifyOtp />} />
         <Route path="/verified" element={<Verified />} />
@@ -75,7 +61,7 @@ function App() {
         {/* protected + layout */}
         <Route element={<ProtectedRoute />}>
           <Route path="/onboarding" element={<Onboarding />} />
-          {/* Workout pages — no bottom nav */}
+          {/* Workout pages */}
           <Route path="/workout/:sessionId" element={<ActiveWorkout />} />
           <Route
             path="/workout/:sessionId/complete"
@@ -89,8 +75,8 @@ function App() {
             <Route path="/bodyweight" element={<Bodyweight />} />
           </Route>
         </Route>
-      </Routes>
-    </>
+      </Route>
+    </Routes>
   );
 }
 
