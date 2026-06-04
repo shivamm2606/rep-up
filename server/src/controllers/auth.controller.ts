@@ -97,3 +97,22 @@ export const resetPassword = asyncHandler(async (req, res) => {
   await MongoAuthService.resetPassword(token, newPassword);
   res.status(200).json(new ApiResponse(200, {}, "Password reset successfully"));
 });
+
+export const demoLogin = asyncHandler(async (_req, res) => {
+  const result = await MongoAuthService.demoLogin();
+
+  res.cookie("accessToken", result.accessToken, cookieOptions);
+  res.cookie("refreshToken", result.refreshToken, cookieOptions);
+
+  res.status(200).json(
+    new ApiResponse(
+      200,
+      {
+        ...result.user,
+        accessToken: result.accessToken,
+        refreshToken: result.refreshToken,
+      },
+      "Demo login successful",
+    ),
+  );
+});

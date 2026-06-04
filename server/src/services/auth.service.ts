@@ -1,4 +1,8 @@
 import User from "../models/user.model.js";
+import Exercise from "../models/exercise.model.js";
+import WorkoutSession from "../models/workoutSession.model.js";
+import WorkoutTemplate from "../models/workoutTemplate.model.js";
+import Bodyweight from "../models/bodyweight.model.js";
 import {
   IAuthService,
   RegisterDto,
@@ -285,6 +289,153 @@ class MongoAuthService implements IAuthService {
     user.resetPasswordExpiry = undefined;
     user.refreshToken = undefined;
     await user.save();
+  };
+
+  demoLogin = async (): Promise<LoginResult> => {
+    const DEMO_EMAIL = "demo@repup.cloud";
+    const DEMO_PASSWORD = "Demo@1234";
+
+    const user = await User.findOne({ email: DEMO_EMAIL }).select("+password");
+
+    if (!user) {
+      throw new ApiError(404, "Demo account not configured.");
+    }
+
+    // reset demo data so every recruiter gets a fresh experience
+    const userId = user._id;
+
+    await WorkoutSession.deleteMany({ userId });
+    await Bodyweight.deleteMany({ userId });
+    await WorkoutTemplate.deleteMany({ userId });
+
+    // rebuild exercise name → id map
+    const exercises = await Exercise.find({ isCustom: false });
+    const ex: Record<string, any> = {};
+    for (const e of exercises) ex[e.name] = e._id;
+
+    // re-seed templates
+    await WorkoutTemplate.insertMany([
+      {
+        name: "Push Day", userId,
+        exercises: [
+          { exerciseId: ex["Barbell Bench Press"], targetSets: 4 },
+          { exerciseId: ex["Incline Dumbbell Press"], targetSets: 3 },
+          { exerciseId: ex["Cable Fly"], targetSets: 3 },
+          { exerciseId: ex["Lateral Raise"], targetSets: 4 },
+          { exerciseId: ex["Tricep Pushdown"], targetSets: 3 },
+        ],
+      },
+      {
+        name: "Pull Day", userId,
+        exercises: [
+          { exerciseId: ex["Pull Up"], targetSets: 3 },
+          { exerciseId: ex["Bent Over Barbell Row"], targetSets: 4 },
+          { exerciseId: ex["Seated Cable Row"], targetSets: 3 },
+          { exerciseId: ex["Face Pull"], targetSets: 3 },
+          { exerciseId: ex["Barbell Curl"], targetSets: 3 },
+        ],
+      },
+      {
+        name: "Leg Day", userId,
+        exercises: [
+          { exerciseId: ex["Barbell Back Squat"], targetSets: 4 },
+          { exerciseId: ex["Romanian Deadlift"], targetSets: 3 },
+          { exerciseId: ex["Leg Press"], targetSets: 3 },
+          { exerciseId: ex["Leg Curl"], targetSets: 3 },
+          { exerciseId: ex["Standing Calf Raise"], targetSets: 4 },
+        ],
+      },
+    ]);
+
+    // re-seed workout sessions
+    const now = new Date();
+    const day = (daysAgo: number) => {
+      const d = new Date(now);
+      d.setDate(d.getDate() - daysAgo);
+      d.setHours(9, 0, 0, 0);
+      return d;
+    };
+
+    await WorkoutSession.insertMany([
+      {
+        userId, name: "Push Day", date: day(0), status: "completed", duration: 3720,
+        exercises: [
+          { exerciseId: ex["Barbell Bench Press"], sets: [{ weight: 70, reps: 10 }, { weight: 75, reps: 8 }, { weight: 80, reps: 6 }, { weight: 80, reps: 5 }] },
+          { exerciseId: ex["Incline Dumbbell Press"], sets: [{ weight: 24, reps: 10 }, { weight: 26, reps: 8 }, { weight: 26, reps: 7 }] },
+          { exerciseId: ex["Cable Fly"], sets: [{ weight: 15, reps: 12 }, { weight: 17.5, reps: 10 }, { weight: 17.5, reps: 9 }] },
+          { exerciseId: ex["Lateral Raise"], sets: [{ weight: 10, reps: 15 }, { weight: 10, reps: 12 }, { weight: 12, reps: 10 }, { weight: 12, reps: 8 }] },
+          { exerciseId: ex["Tricep Pushdown"], sets: [{ weight: 25, reps: 12 }, { weight: 27.5, reps: 10 }, { weight: 30, reps: 8 }] },
+        ],
+      },
+      {
+        userId, name: "Pull Day", date: day(1), status: "completed", duration: 3540,
+        exercises: [
+          { exerciseId: ex["Pull Up"], sets: [{ weight: 0, reps: 10 }, { weight: 0, reps: 8 }, { weight: 0, reps: 7 }] },
+          { exerciseId: ex["Bent Over Barbell Row"], sets: [{ weight: 60, reps: 10 }, { weight: 65, reps: 8 }, { weight: 70, reps: 6 }, { weight: 70, reps: 6 }] },
+          { exerciseId: ex["Seated Cable Row"], sets: [{ weight: 50, reps: 12 }, { weight: 55, reps: 10 }, { weight: 55, reps: 9 }] },
+          { exerciseId: ex["Barbell Curl"], sets: [{ weight: 25, reps: 12 }, { weight: 30, reps: 8 }, { weight: 30, reps: 7 }] },
+        ],
+      },
+      {
+        userId, name: "Leg Day", date: day(3), status: "completed", duration: 4200,
+        exercises: [
+          { exerciseId: ex["Barbell Back Squat"], sets: [{ weight: 80, reps: 8 }, { weight: 85, reps: 6 }, { weight: 90, reps: 5 }, { weight: 90, reps: 4 }] },
+          { exerciseId: ex["Romanian Deadlift"], sets: [{ weight: 70, reps: 10 }, { weight: 75, reps: 8 }, { weight: 75, reps: 8 }] },
+          { exerciseId: ex["Leg Press"], sets: [{ weight: 140, reps: 12 }, { weight: 160, reps: 10 }, { weight: 160, reps: 9 }] },
+          { exerciseId: ex["Standing Calf Raise"], sets: [{ weight: 60, reps: 15 }, { weight: 60, reps: 12 }, { weight: 65, reps: 12 }, { weight: 65, reps: 10 }] },
+        ],
+      },
+      {
+        userId, name: "Push Day", date: day(5), status: "completed", duration: 3300,
+        exercises: [
+          { exerciseId: ex["Barbell Bench Press"], sets: [{ weight: 72.5, reps: 10 }, { weight: 77.5, reps: 7 }, { weight: 80, reps: 6 }] },
+          { exerciseId: ex["Incline Dumbbell Press"], sets: [{ weight: 26, reps: 9 }, { weight: 26, reps: 8 }, { weight: 28, reps: 6 }] },
+          { exerciseId: ex["Lateral Raise"], sets: [{ weight: 12, reps: 11 }, { weight: 12, reps: 10 }, { weight: 12, reps: 9 }] },
+        ],
+      },
+    ]);
+
+    // re-seed bodyweight
+    await Bodyweight.insertMany([
+      { userId, weight: 73.2, unit: "kg", date: day(13) },
+      { userId, weight: 73.0, unit: "kg", date: day(11) },
+      { userId, weight: 72.8, unit: "kg", date: day(9) },
+      { userId, weight: 72.5, unit: "kg", date: day(7) },
+      { userId, weight: 72.0, unit: "kg", date: day(4) },
+      { userId, weight: 71.8, unit: "kg", date: day(2) },
+      { userId, weight: 71.5, unit: "kg", date: day(0) },
+    ]);
+
+    // reset userInfo to defaults
+    user.userInfo = {
+      height: 175,
+      currentWeight: 72,
+      targetWeight: 70,
+      gender: "male",
+      dateOfBirth: new Date("2000-06-15"),
+      activityLevel: "moderately_active",
+      goal: "lean_bulk",
+      dailyCalorieGoal: 2650,
+      isCalorieGoalAutoCalculated: true,
+    };
+
+    // generate tokens
+    const accessToken = await user.generateAccessToken();
+    const refreshToken = await user.generateRefreshToken();
+    user.refreshToken = refreshToken;
+    await user.save();
+
+    return {
+      user: {
+        _id: user._id.toString(),
+        name: user.name,
+        username: user.username,
+        email: user.email,
+        userInfo: user.userInfo,
+      },
+      accessToken,
+      refreshToken,
+    };
   };
 }
 

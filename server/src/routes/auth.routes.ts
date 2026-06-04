@@ -10,6 +10,7 @@ import { verifyOtp, resendOtp } from "../controllers/auth.controller.js";
 import {
   forgotPassword,
   resetPassword,
+  demoLogin,
 } from "../controllers/auth.controller.js";
 import {
   otpRateLimiter,
@@ -30,6 +31,7 @@ const router = Router();
 
 router.route("/register").post(validate(registerSchema), registerUser);
 router.route("/login").post(loginRateLimiter, validate(loginSchema), loginUser);
+router.route("/demo").post(demoLogin);
 router.route("/refresh-token").post(refreshToken);
 
 //rate limited routes
