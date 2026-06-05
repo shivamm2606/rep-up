@@ -29,11 +29,12 @@ export function usePreviousExerciseData() {
     // Iterate newest first — only keep the first (most recent) occurrence
     for (const session of completed) {
       for (const ex of session.exercises) {
+        if (!ex.exerciseId) continue;
         const exId =
           typeof ex.exerciseId === "string"
             ? ex.exerciseId
             : (ex.exerciseId as unknown as { _id: string })._id;
-        if (!previousMap.has(exId) && ex.sets.length > 0) {
+        if (exId && !previousMap.has(exId) && ex.sets.length > 0) {
           previousMap.set(exId, ex.sets);
         }
       }

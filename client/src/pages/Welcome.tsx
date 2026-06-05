@@ -68,7 +68,7 @@ function useStandalonePwa() {
   return standalone;
 }
 
-function DesktopView() {
+function DesktopView({ onUseWeb }: { onUseWeb?: () => void }) {
   const navigate = useNavigate();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { canInstall, install, installed } = useInstallPrompt();
@@ -268,6 +268,14 @@ function DesktopView() {
                 Install App
               </button>
             )}
+
+            {/* Mobile browser: let users use the app on web without installing */}
+            <button
+              onClick={onUseWeb}
+              className="mt-3 sm:hidden w-fit rounded-full bg-transparent border border-[rgba(255,255,255,0.15)] px-6 py-3 text-[0.85rem] font-semibold text-[rgba(255,255,255,0.7)] transition-colors duration-200 hover:border-[rgba(255,255,255,0.3)] hover:text-white"
+            >
+              Use App on Web →
+            </button>
 
             {/* Mobile notice + QR */}
             <div className="hidden sm:flex bg-[#111113] border border-[#222228] rounded-2xl px-5 py-5 flex-col items-start gap-5 sm:flex-row sm:items-center sm:px-8 sm:py-6 sm:gap-8">
@@ -544,6 +552,8 @@ function MobileLanding() {
 
 export default function LandingPage() {
   const isPwaStandalone = useStandalonePwa();
+  const [useWeb, setUseWeb] = useState(false);
 
-  return isPwaStandalone ? <MobileLanding /> : <DesktopView />;
+  if (isPwaStandalone || useWeb) return <MobileLanding />;
+  return <DesktopView onUseWeb={() => setUseWeb(true)} />;
 }
